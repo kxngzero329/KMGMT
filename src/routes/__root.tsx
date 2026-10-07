@@ -18,6 +18,11 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Toaster } from "@/components/ui/sonner";
 
+const ogImageUrl = new URL(
+  "/og-image.png",
+  import.meta.env.VITE_SITE_URL || "https://kmgmt-preview.vercel.app",
+).href;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -86,7 +91,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "KMGMT | Football Career Consultancy" },
       { name: "description", content: "Independent football career guidance for players and parents in South Africa." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "KMGMT" },
+      { property: "og:image", content: ogImageUrl },
+      { property: "og:image:secure_url", content: ogImageUrl },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1731" },
+      { property: "og:image:height", content: "909" },
+      { property: "og:image:alt", content: "KMGMT — Football Career Consultancy" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImageUrl },
+      { name: "twitter:image:alt", content: "KMGMT — Football Career Consultancy" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
