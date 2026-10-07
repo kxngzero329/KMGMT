@@ -1,0 +1,12 @@
+create schema if not exists extensions;
+alter extension btree_gist set schema extensions;
+revoke execute on function public.is_admin() from public, anon;
+revoke execute on function public.get_available_slots(uuid, date) from public;
+revoke execute on function public.get_available_dates(uuid, date, date) from public;
+revoke execute on function public.create_booking_hold(uuid, timestamptz, jsonb) from public;
+revoke execute on function public.get_booking_public(uuid) from public;
+revoke execute on function public.expire_stale_holds() from authenticated;
+grant execute on function public.get_available_slots(uuid, date) to anon, authenticated;
+grant execute on function public.get_available_dates(uuid, date, date) to anon, authenticated;
+grant execute on function public.create_booking_hold(uuid, timestamptz, jsonb) to anon, authenticated;
+grant execute on function public.get_booking_public(uuid) to anon, authenticated;

@@ -1,0 +1,11 @@
+project_id = "thtjdoaiukjyxdculnpb"
+
+[functions.create-payfast-payment]
+# The handler checks the project public API key, origin, booking UUID and active hold.
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+[functions.payfast-notify]
+# PayFast does not send a Supabase JWT. Signature and PayFast verification are mandatory.
+verify_jwt = false
+import_map = "./functions/deno.json"
