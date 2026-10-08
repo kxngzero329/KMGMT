@@ -5,6 +5,9 @@
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--include=dev"
+  # These settings identify the public Supabase project and are sent to browsers.
+  # Keep scanning enabled for private keys and payment credentials.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_PROJECT_ID,SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_URL,VITE_SUPABASE_PUBLISHABLE_KEY"
 
 # Nitro generates the SSR function in .netlify/functions-internal and routes
 # requests to it. Do not add a SPA rewrite to /index.html: bookings need SSR.

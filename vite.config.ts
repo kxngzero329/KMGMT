@@ -5,6 +5,7 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { getPublicSupabaseConfig } from "./src/integrations/supabase/public-config";
 
 // Netlify provides these at build time. Use the current preview URL for previews
 // and the primary domain in production so shared images stay on the same host.
@@ -15,6 +16,18 @@ const netlifySiteUrl =
 const siteUrl = process.env["VITE_SITE_URL"] || netlifySiteUrl;
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "validate-public-supabase-config",
+      configResolved(config) {
+        // Stop before bundling if a private key was put in a public env variable.
+        getPublicSupabaseConfig(
+          config.env["VITE_SUPABASE_URL"],
+          config.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
+        );
+      },
+    },
+  ],
   // Reuse the wrapper's Nitro integration; adding another adapter duplicates it.
   nitro: { preset: "netlify" },
   vite: {
