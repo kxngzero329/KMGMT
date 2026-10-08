@@ -20,7 +20,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 const ogImageUrl = new URL(
   "/og-image.png",
-  import.meta.env.VITE_SITE_URL || "https://kmgmt-preview.vercel.app",
+  import.meta.env["VITE_SITE_URL"] || "https://kmgmt-preview.vercel.app",
 ).href;
 
 function NotFoundComponent() {

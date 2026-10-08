@@ -6,7 +6,20 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// Netlify provides these at build time. Use the current preview URL for previews
+// and the primary domain in production so shared images stay on the same host.
+const netlifySiteUrl =
+  process.env["CONTEXT"] === "production"
+    ? process.env["URL"]
+    : process.env["DEPLOY_PRIME_URL"] || process.env["URL"];
+const siteUrl = process.env["VITE_SITE_URL"] || netlifySiteUrl;
+
 export default defineConfig({
+  // Reuse the wrapper's Nitro integration; adding another adapter duplicates it.
+  nitro: { preset: "netlify" },
+  vite: {
+    define: siteUrl ? { "import.meta.env.VITE_SITE_URL": JSON.stringify(siteUrl) } : {},
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

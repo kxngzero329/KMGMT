@@ -1,0 +1,10 @@
+# Add specific Netlify redirects above this note, one per line.
+#
+# Routing fallback is supplied by Nitro's generated Netlify SSR function:
+# .netlify/functions-internal/server/server.mjs exports path: "/*" with
+# preferStatic: true. Static assets are served first; unmatched routes go to SSR.
+# This also handles direct links, refreshes, and /_serverFn/* booking requests.
+#
+# Keep the catch-all in that generated function. This full-stack app does not
+# emit an index.html, and the function's custom path replaces its default
+# /.netlify/functions/server URL, so neither is a valid rewrite target here.

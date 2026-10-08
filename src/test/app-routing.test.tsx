@@ -5,6 +5,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { routeTree } from "@/routeTree.gen";
 
+// jsdom cannot load stylesheets or hydration scripts from the document shell.
+// React 19 can suspend rendering while those external stylesheets are pending.
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>();
+  return { ...actual, HeadContent: () => null, Scripts: () => null };
+});
+
 function renderAt(path: string) {
   const queryClient = new QueryClient();
   const router = createRouter({
@@ -12,7 +19,8 @@ function renderAt(path: string) {
     context: { queryClient },
     history: createMemoryHistory({ initialEntries: [path] }),
   });
-  return render(<RouterProvider router={router} />);
+  // TanStack Start's root shell renders <html>, <head>, and <body>.
+  return render(<RouterProvider router={router} />, { container: document });
 }
 
 afterEach(() => {
@@ -24,16 +32,16 @@ afterEach(() => {
 // routes are rewritten as the app is built and this must keep passing.
 describe("App routing", () => {
   it("renders the index route", async () => {
-    const { container } = renderAt("/");
+    renderAt("/");
 
-    await waitFor(() => expect(container.firstChild).not.toBeNull());
+    await waitFor(() => expect(document.querySelector("#main")).not.toBeNull());
   });
 
   it("renders the not-found route", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
-    const { container } = renderAt("/this-route-does-not-exist");
+    renderAt("/this-route-does-not-exist");
 
-    await waitFor(() => expect(container.firstChild).not.toBeNull());
+    await waitFor(() => expect(document.querySelector("#main")).not.toBeNull());
   });
 });

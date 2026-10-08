@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--include=dev"
+
+# Nitro generates the SSR function in .netlify/functions-internal and routes
+# requests to it. Do not add a SPA rewrite to /index.html: bookings need SSR.
