@@ -9,3 +9,8 @@ import_map = "./functions/deno.json"
 # PayFast does not send a Supabase JWT. Signature and PayFast verification are mandatory.
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.process-booking-emails]
+# Private worker: handler requires EMAIL_WORKER_TOKEN, never a browser/public key.
+verify_jwt = false
+import_map = "./functions/deno.json"
