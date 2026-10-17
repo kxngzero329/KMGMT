@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.18"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admins: {
@@ -202,6 +227,7 @@ export type Database = {
           blocked_until: string
           booking_reference: string
           client_id: string
+          consultation_format: string | null
           created_at: string
           end_time: string
           hold_expires_at: string | null
@@ -217,6 +243,7 @@ export type Database = {
           blocked_until: string
           booking_reference: string
           client_id: string
+          consultation_format?: string | null
           created_at?: string
           end_time: string
           hold_expires_at?: string | null
@@ -232,6 +259,7 @@ export type Database = {
           blocked_until?: string
           booking_reference?: string
           client_id?: string
+          consultation_format?: string | null
           created_at?: string
           end_time?: string
           hold_expires_at?: string | null
@@ -328,6 +356,65 @@ export type Database = {
           whatsapp?: string
         }
         Relationships: []
+      }
+      contact_email_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          enquiry_id: string
+          first_attempt_at: string | null
+          id: string
+          last_error_code: string | null
+          lock_token: string | null
+          locked_until: string | null
+          next_attempt_at: string
+          request_payload: Json | null
+          resend_id: string | null
+          sent_at: string | null
+          snapshot: Json
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          enquiry_id: string
+          first_attempt_at?: string | null
+          id?: string
+          last_error_code?: string | null
+          lock_token?: string | null
+          locked_until?: string | null
+          next_attempt_at?: string
+          request_payload?: Json | null
+          resend_id?: string | null
+          sent_at?: string | null
+          snapshot: Json
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          enquiry_id?: string
+          first_attempt_at?: string | null
+          id?: string
+          last_error_code?: string | null
+          lock_token?: string | null
+          locked_until?: string | null
+          next_attempt_at?: string
+          request_payload?: Json | null
+          resend_id?: string | null
+          sent_at?: string | null
+          snapshot?: Json
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_email_outbox_enquiry_id_fkey"
+            columns: ["enquiry_id"]
+            isOneToOne: true
+            referencedRelation: "contact_enquiries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_enquiries: {
         Row: {
@@ -567,14 +654,53 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      create_booking_hold: {
-        Args: { p_client: Json; p_service_id: string; p_start: string }
+      claim_contact_email_jobs: {
+        Args: { p_limit?: number }
         Returns: {
-          booking_id: string
-          booking_reference: string
-          hold_expires_at: string
+          attempts: number
+          created_at: string
+          enquiry_id: string
+          first_attempt_at: string | null
+          id: string
+          last_error_code: string | null
+          lock_token: string | null
+          locked_until: string | null
+          next_attempt_at: string
+          request_payload: Json | null
+          resend_id: string | null
+          sent_at: string | null
+          snapshot: Json
+          status: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "contact_email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
+      create_booking_hold:
+        | {
+            Args: { p_client: Json; p_service_id: string; p_start: string }
+            Returns: {
+              booking_id: string
+              booking_reference: string
+              hold_expires_at: string
+            }[]
+          }
+        | {
+            Args: {
+              p_client: Json
+              p_consultation_format: string
+              p_service_id: string
+              p_start: string
+            }
+            Returns: {
+              booking_id: string
+              booking_reference: string
+              hold_expires_at: string
+            }[]
+          }
       dispatch_booking_email_worker: { Args: never; Returns: undefined }
       enqueue_paid_booking_emails: {
         Args: { p_booking_id: string }
@@ -591,7 +717,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      finish_contact_email_job: {
+        Args: {
+          p_error_code?: string
+          p_id: string
+          p_lock: string
+          p_permanent?: boolean
+          p_resend_id?: string
+        }
+        Returns: undefined
+      }
       freeze_booking_email_request: {
+        Args: { p_id: string; p_lock: string; p_payload: Json }
+        Returns: Json
+      }
+      freeze_contact_email_request: {
         Args: { p_id: string; p_lock: string; p_payload: Json }
         Returns: Json
       }
@@ -742,6 +882,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       booking_status: [

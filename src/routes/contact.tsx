@@ -46,9 +46,9 @@ function ContactMethods() {
     {
       label: "Email",
       icon: Mail,
-      value: contactDetails.email,
+      value: contactDetails.email || "Send an enquiry",
       placeholder: contactPage.placeholders.email,
-      href: contactDetails.email ? `mailto:${contactDetails.email}` : "",
+      href: contactDetails.email ? `mailto:${contactDetails.email}` : "#enquiry",
     },
     {
       label: "WhatsApp",
@@ -113,6 +113,7 @@ function Contact() {
   const [values, setValues] = useState(EMPTY_VALUES);
   const [errors, setErrors] = useState<Partial<Record<keyof typeof values, string>>>({});
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [sendError, setSendError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const successHeading = useRef<HTMLHeadingElement>(null);
   const submitting = useRef(false);
@@ -149,10 +150,16 @@ function Contact() {
     setErrors({});
     submitting.current = true;
     setState("sending");
+    setSendError("");
     try {
       await submitEnquiry(result.data);
       setState("sent");
-    } catch {
+    } catch (error) {
+      setSendError(
+        error instanceof Error && error.message === "ENQUIRY_RATE_LIMIT"
+          ? "You've sent several enquiries recently. Please wait 15 minutes or contact us on WhatsApp."
+          : "Your message couldn't be sent. Your details are still here. Please try again.",
+      );
       setState("error");
     } finally {
       submitting.current = false;
@@ -163,6 +170,7 @@ function Contact() {
     setValues(EMPTY_VALUES);
     setErrors({});
     setState("idle");
+    setSendError("");
     requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>("input")?.focus());
   }
 
@@ -338,7 +346,7 @@ function Contact() {
                       role="alert"
                       className="mt-5 rounded-md border border-destructive/25 bg-destructive/5 p-4 text-sm leading-6 text-destructive"
                     >
-                      Your message couldn't be sent. Your details are still here. Please try again.
+                      {sendError}
                     </p>
                   )}
                   <div className="mt-7 flex flex-col gap-5 border-t border-gold/20 pt-6 sm:flex-row sm:items-center sm:justify-between">

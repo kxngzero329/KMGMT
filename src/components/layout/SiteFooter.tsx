@@ -131,6 +131,27 @@ export function SiteFooter() {
             >
               Terms
             </Link>
+            <Link
+              to="/terms"
+              hash="refunds"
+              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
+            >
+              Refunds
+            </Link>
+            <Link
+              to="/terms"
+              hash="cancellations"
+              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
+            >
+              Cancellations
+            </Link>
+            <Link
+              to="/terms"
+              hash="service-delivery"
+              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
+            >
+              Service delivery
+            </Link>
             <button
               type="button"
               onClick={backToTop}

@@ -18,7 +18,7 @@ export const consultant = {
 
 export const contactDetails = {
   email: "", // e.g. "hello@kmgmt.co.za"
-  whatsapp: "", // e.g. "+27 82 000 0000"
+  whatsapp: "+27 69 939 6858",
   instagram: "", // e.g. "https://instagram.com/kmgmt"
   facebook: "", // Approved Facebook profile URL
   linkedin: "", // Approved LinkedIn profile URL

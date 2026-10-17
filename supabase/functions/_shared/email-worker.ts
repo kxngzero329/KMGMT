@@ -1,14 +1,15 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { Env, PaymentDependencies } from "./types.ts";
+import { DeliveryError, sendResendEmail } from "./resend.ts";
+import { processContactEmails } from "./contact-email-worker.ts";
+export { sendResendEmail } from "./resend.ts";
 import {
   buildBookingEmail,
   emailKind,
   getEmailConfig,
   snapshotSchema,
-  type EmailConfig,
   type EmailSnapshot,
-  type ResendMessage,
 } from "./booking-email.ts";
 
 const messageSchema = z.object({
@@ -25,47 +26,6 @@ const jobSchema = z.object({
   snapshot: snapshotSchema,
   request_payload: messageSchema.nullable(),
 });
-
-class DeliveryError extends Error {
-  constructor(
-    readonly code: string,
-    readonly permanent = false,
-  ) {
-    super(code);
-  }
-}
-
-export async function sendResendEmail(
-  message: ResendMessage,
-  config: EmailConfig,
-  idempotencyKey: string,
-): Promise<string> {
-  let response: Response;
-  try {
-    response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": idempotencyKey,
-      },
-      body: JSON.stringify(message),
-      signal: AbortSignal.timeout(15_000),
-    });
-  } catch {
-    throw new DeliveryError("resend_network_error");
-  }
-  if (!response.ok) {
-    // Never log Resend's response body: it can include recipient information.
-    throw new DeliveryError(`resend_http_${response.status}`, [400, 422].includes(response.status));
-  }
-  try {
-    const result: unknown = await response.json();
-    return z.object({ id: z.string().min(1) }).parse(result).id;
-  } catch {
-    throw new DeliveryError("resend_invalid_response");
-  }
-}
 
 /** Only called from Edge Functions; database leases and provider keys protect retries. */
 export async function processBookingEmails(deps: PaymentDependencies) {
@@ -219,10 +179,32 @@ export async function handleEmailWorker(
         admin_email_id: admin,
       });
     }
-    return Response.json({
-      ok: true,
-      ...(await processBookingEmails({ env, supabase: database() })),
-    });
+    const deps = { env, supabase: database() };
+    // A problem with one queue must not prevent processing the other queue.
+    let booking = { sent: 0, failed: 0 };
+    let contact = { sent: 0, failed: 0 };
+    let unavailable = false;
+    try {
+      booking = await processBookingEmails(deps);
+    } catch {
+      unavailable = true;
+      console.error("Booking email queue temporarily unavailable");
+    }
+    if (booking.sent + booking.failed > 0) await new Promise((resolve) => setTimeout(resolve, 650));
+    try {
+      contact = await processContactEmails(deps);
+    } catch {
+      unavailable = true;
+      console.error("Contact email queue temporarily unavailable");
+    }
+    return Response.json(
+      {
+        ok: !unavailable,
+        sent: booking.sent + contact.sent,
+        failed: booking.failed + contact.failed,
+      },
+      { status: unavailable ? 503 : 200 },
+    );
   } catch (error) {
     const code = error instanceof DeliveryError ? error.code : "email_worker_unavailable";
     console.error("Email worker unavailable", code);

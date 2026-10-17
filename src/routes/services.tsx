@@ -73,7 +73,11 @@ const FAQS = [
   },
   {
     q: "How do booking and payment work?",
-    a: "Choose a consultation, share your details and select an available date and time. Your slot is held temporarily while you pay through PayFast. The booking is confirmed after payment has been verified.",
+    a: "Choose a consultation and whether to meet online or in person, share your details and select an available date and time. Your slot is held temporarily while you pay through PayFast. Once payment is verified, your booking is confirmed and KMGMT arranges the call or venue directly with you.",
+  },
+  {
+    q: "Can I cancel, reschedule or request a refund?",
+    a: "Contact KMGMT on WhatsApp with your booking reference at least 24 hours before your consultation. Rescheduling and refunds are handled manually. Approved refunds take 3–5 working days, and your statutory South African consumer rights remain protected. See our Terms for the full policies.",
   },
 ];
 

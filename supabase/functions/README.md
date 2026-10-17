@@ -1,7 +1,32 @@
-# Booking and payment emails
+# Booking, payment and contact enquiry emails
 
 All email code runs in Supabase Edge Functions. The website does not call Resend
 and does not need any private email or payment credentials in Netlify.
+
+## Contact form
+
+The existing contact form saves to `contact_enquiries`. An insert trigger queues
+one admin notification in `contact_email_outbox` in the same transaction and
+nudges the private `process-booking-emails` Edge Function. The existing minute
+schedule also retries contact notifications. No new public email endpoint or
+private frontend credentials are needed, and existing deployed forms work too.
+
+Notifications use `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`, `EMAIL_SITE_URL` and
+`RESEND_API_KEY`, the same secrets as booking emails. Only the admin is emailed.
+The submitted email is set as `reply_to`; the message includes the name, email,
+optional phone, subject, message, received time and admin enquiry link. Submitted
+HTML is escaped, and the verified KMGMT sender is never replaced by visitor input.
+
+Each job has a database lease, stable Resend idempotency key, frozen request and
+saved provider receipt. Failed deliveries retry with backoff and ambiguous sends
+older than 23 hours need manual reconciliation. Inspect the service-only
+`contact_email_outbox` for `status`, `attempts`, `last_error_code` and `resend_id`.
+The public form and signed-in clients cannot read or modify this delivery table.
+
+Existing enquiries are not backfilled. New submissions are limited to five per
+email address in 15 minutes; this is a basic throttle, not a substitute for a
+bot challenge if the public form later receives sustained abuse. Changing an
+enquiry's read/responded/archived status does not send another notification.
 
 ## Flow
 
@@ -23,16 +48,21 @@ stops pending confirmations. Existing historical bookings are not backfilled.
 
 ## Supabase Edge Function secrets
 
-| Secret | Purpose |
-| --- | --- |
-| `RESEND_API_KEY` | Existing Resend API key with sending permission for the verified domain |
-| `EMAIL_FROM` | Sender, e.g. `KMGMT <bookings@kmgmt.co.za>` |
-| `ADMIN_NOTIFICATION_EMAIL` | Current admin recipient; change this secret to change future notifications |
-| `EMAIL_SITE_URL` | `https://kmgmt.co.za` for booking/admin links |
-| `EMAIL_WORKER_TOKEN` | Random private token shared with Vault's `booking_email_worker_token` |
+| Secret                     | Purpose                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`           | Existing Resend API key with sending permission for the verified domain           |
+| `EMAIL_FROM`               | Sender, e.g. `KMGMT <bookings@kmgmt.co.za>`                                       |
+| `ADMIN_NOTIFICATION_EMAIL` | Current admin recipient; change this secret to change future notifications        |
+| `EMAIL_SITE_URL`           | `https://kmgmt.co.za` for booking/admin links                                     |
+| `EMAIL_WHATSAPP`           | Public KMGMT WhatsApp number for session arrangements, changes and manual refunds |
+| `EMAIL_WORKER_TOKEN`       | Random private token shared with Vault's `booking_email_worker_token`             |
 
 Set these with the Supabase secrets UI/CLI. Never add them to `VITE_*` variables.
 The admin address is stored in Supabase secrets rather than application source.
+The booking format (`online` or `in_person`) is saved atomically with the hold
+and included in new email snapshots. Historical bookings remain unspecified.
+KMGMT arranges the video call or venue directly via WhatsApp before the session;
+the website does not create video meetings or issue refunds automatically.
 Jobs whose first send was already attempted keep their original recipient/payload
 to preserve Resend idempotency. Future unattempted jobs use the new secret.
 

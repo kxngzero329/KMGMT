@@ -12,11 +12,28 @@ import { PitchLines } from "@/components/home/HomeDetails";
 import { formatDate, formatTime, formatZAR } from "@/lib/utils/format";
 import type { PublicService } from "@/features/public/queries";
 import { consultant } from "@/content/site";
+import { consultationFormatLabel, type ConsultationFormat } from "@/lib/consultations";
 
-type SummaryProps = { service: PublicService | null; date: string | null; slot: string | null };
+type SummaryProps = {
+  service: PublicService | null;
+  format: ConsultationFormat | null;
+  date: string | null;
+  slot: string | null;
+};
 
-function SummaryDetails({ service, date, slot, dark = false }: SummaryProps & { dark?: boolean }) {
+function SummaryDetails({
+  service,
+  format,
+  date,
+  slot,
+  dark = false,
+}: SummaryProps & { dark?: boolean }) {
   const rows = [
+    {
+      label: "Meeting format",
+      value: format ? consultationFormatLabel(format) : "Choose online or in person",
+      icon: MessageCircle,
+    },
     {
       label: "Session length",
       value: service ? `${service.duration_minutes} minutes` : "Choose a consultation",

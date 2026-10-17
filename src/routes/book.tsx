@@ -13,6 +13,7 @@ import { BookingSummary, MobileBookingSummary } from "@/components/booking/Booki
 import { BookingAssurances, PitchLines } from "@/components/home/HomeDetails";
 import { servicesQuery, type PublicService } from "@/features/public/queries";
 import type { ClientDetails } from "@/lib/validation/schemas";
+import type { ConsultationFormat } from "@/lib/consultations";
 
 export const Route = createFileRoute("/book")({
   validateSearch: z.object({ service: z.string().max(80).optional() }),
@@ -40,6 +41,7 @@ function BookPage() {
   const services = useQuery(servicesQuery);
   const [step, setStep] = useState(0);
   const [service, setService] = useState<PublicService | null>(null);
+  const [format, setFormat] = useState<ConsultationFormat | null>(null);
   const [draft, setDraft] = useState<DetailsDraft>(emptyDetails);
   const [client, setClient] = useState<ClientDetails | null>(null);
   const [date, setDate] = useState<string | null>(null);
@@ -106,7 +108,7 @@ function BookPage() {
       <section className="bg-secondary py-9 md:py-12" aria-label="Build your consultation booking">
         <div ref={workspaceRef} id="booking-workspace" className="container-page scroll-mt-20">
           <Stepper current={step} {...(!busy ? { onEdit: go } : {})} />
-          <MobileBookingSummary service={service} date={date} slot={slot} />
+          <MobileBookingSummary service={service} format={format} date={date} slot={slot} />
           <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_0.85fr] lg:gap-10">
             <div
               id="booking-step"
@@ -136,7 +138,9 @@ function BookPage() {
                       }
                       setService(selected);
                     }}
-                    onNext={() => service && go(1)}
+                    format={format}
+                    onFormatChange={setFormat}
+                    onNext={() => service && format && go(1)}
                     onRetry={() => void services.refetch()}
                   />
                 </>
@@ -174,9 +178,10 @@ function BookPage() {
                   onNext={() => slot && go(4)}
                 />
               )}
-              {step === 4 && service && client && slot && (
+              {step === 4 && service && format && client && slot && (
                 <ReviewStep
                   service={service}
+                  format={format}
                   client={client}
                   slot={slot}
                   onEdit={go}
@@ -188,7 +193,7 @@ function BookPage() {
                 />
               )}
             </div>
-            <BookingSummary service={service} date={date} slot={slot} />
+            <BookingSummary service={service} format={format} date={date} slot={slot} />
           </div>
           <div className="mt-9 border-t border-gold/20 pt-7">
             <BookingAssurances />

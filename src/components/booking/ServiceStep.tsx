@@ -4,6 +4,11 @@ import { StepNav } from "./Stepper";
 import { BookingNotice, BookingStepHeading } from "./BookingStep";
 import { formatZAR } from "@/lib/utils/format";
 import type { PublicService } from "@/features/public/queries";
+import {
+  CONSULTATION_FORMAT_LABEL,
+  CONSULTATION_DELIVERY,
+  type ConsultationFormat,
+} from "@/lib/consultations";
 
 export function ServiceStep({
   services,
@@ -12,6 +17,8 @@ export function ServiceStep({
   retrying,
   selected,
   onSelect,
+  format,
+  onFormatChange,
   onNext,
   onRetry,
 }: {
@@ -21,6 +28,8 @@ export function ServiceStep({
   retrying: boolean;
   selected: PublicService | null;
   onSelect: (service: PublicService) => void;
+  format: ConsultationFormat | null;
+  onFormatChange: (format: ConsultationFormat) => void;
   onNext: () => void;
   onRetry: () => void;
 }) {
@@ -111,10 +120,50 @@ export function ServiceStep({
           })}
         </fieldset>
       )}
+      {selected && (
+        <fieldset className="mt-8 space-y-3 border-t border-gold/25 pt-6">
+          <legend className="pr-3 text-sm font-semibold">How would you like to meet?</legend>
+          {(["online", "in_person"] as const).map((option) => (
+            <label
+              key={option}
+              className={`flex cursor-pointer items-start gap-3 rounded-md border p-4 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold ${format === option ? "border-gold bg-gold/5" : "border-border hover:border-gold/65"}`}
+            >
+              <input
+                type="radio"
+                name="consultation-format"
+                value={option}
+                checked={format === option}
+                onChange={() => onFormatChange(option)}
+                aria-describedby={`format-${option}-description`}
+                className="mt-1 h-4 w-4 shrink-0 accent-[#806022]"
+              />
+              <span>
+                <span className="block text-sm font-semibold">
+                  {CONSULTATION_FORMAT_LABEL[option]}
+                </span>
+                <span
+                  id={`format-${option}-description`}
+                  className="mt-2 block text-xs leading-6 text-muted-foreground"
+                >
+                  {CONSULTATION_DELIVERY[option]}
+                </span>
+              </span>
+            </label>
+          ))}
+          <p className="text-xs leading-6 text-muted-foreground">
+            The consultation price and available times apply to either format.
+          </p>
+        </fieldset>
+      )}
       <StepNav
         onNext={onNext}
         nextLabel="Your details"
-        disabled={loading || !selected || !services?.some((service) => service.id === selected.id)}
+        disabled={
+          loading ||
+          !selected ||
+          !format ||
+          !services?.some((service) => service.id === selected.id)
+        }
       />
     </div>
   );

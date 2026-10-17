@@ -114,7 +114,7 @@ const FAQS = [
   },
   {
     q: "Are consultations online?",
-    a: "Consultation details are confirmed with your booking. Reach out via the contact page if you have a specific preference.",
+    a: "Choose online (video call) or in person when booking. KMGMT contacts you on WhatsApp to arrange the call or agree on a venue before your appointment. If you need a particular location, contact us before paying.",
   },
   {
     q: "Can a parent book for their child?",

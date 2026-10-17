@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { LockKeyhole } from "lucide-react";
 import { BookingStepHeading } from "./BookingStep";
 import { StepNav } from "./Stepper";
@@ -9,9 +10,15 @@ import { submitPayfastForm } from "@/features/payments/redirect";
 import { formatDate, formatTime, formatZAR } from "@/lib/utils/format";
 import type { PublicService } from "@/features/public/queries";
 import type { ClientDetails } from "@/lib/validation/schemas";
+import {
+  consultationFormatLabel,
+  consultationDelivery,
+  type ConsultationFormat,
+} from "@/lib/consultations";
 
 export function ReviewStep({
   service,
+  format,
   client,
   slot,
   onEdit,
@@ -19,6 +26,7 @@ export function ReviewStep({
   onBusyChange,
 }: {
   service: PublicService;
+  format: ConsultationFormat;
   client: ClientDetails;
   slot: string;
   onEdit: (step: number) => void;
@@ -31,7 +39,7 @@ export function ReviewStep({
   const [heldFor, setHeldFor] = useState<{ key: string; bookingId: string } | null>(null);
   const submitting = useRef(false);
   const returnTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdKey = `${service.id}|${slot}|${client.email}`;
+  const holdKey = `${service.id}|${format}|${slot}|${client.email}`;
   useEffect(
     () => () => {
       if (returnTimer.current) clearTimeout(returnTimer.current);
@@ -48,7 +56,9 @@ export function ReviewStep({
     try {
       let bookingId = heldFor?.key === holdKey ? heldFor.bookingId : null;
       if (!bookingId) {
-        const result = await hold({ data: { serviceId: service.id, startTime: slot, client } });
+        const result = await hold({
+          data: { serviceId: service.id, consultationFormat: format, startTime: slot, client },
+        });
         if (!result.ok) {
           setError(result.error ?? "This time is no longer available. Please choose another time.");
           if (result.error?.includes("just taken"))
@@ -80,6 +90,7 @@ export function ReviewStep({
 
   const sessionRows: [string, string, number][] = [
     ["Consultation", service.name, 0],
+    ["Meeting format", consultationFormatLabel(format), 0],
     ["Duration", `${service.duration_minutes} minutes`, 0],
     ["Date", formatDate(slot), 2],
     ["Time", `${formatTime(slot)} (SAST)`, 3],
@@ -129,6 +140,9 @@ export function ReviewStep({
           </dl>
         </section>
       ))}
+      <p className="mt-5 rounded-md border border-gold/25 bg-secondary p-4 text-xs leading-6 text-muted-foreground">
+        {consultationDelivery(format)}
+      </p>
       <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-y border-gold/30 py-5">
         <p className="text-sm font-semibold">Consultation total</p>
         <p className="text-3xl font-bold tracking-tight text-[#806022]">
@@ -146,6 +160,29 @@ export function ReviewStep({
           confirmed once payment is received.
         </p>
       </div>
+      <p className="mt-5 text-xs leading-6 text-muted-foreground">
+        By continuing, you agree to our{" "}
+        <Link
+          to="/terms"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-gold underline-offset-4"
+        >
+          Terms &amp; Conditions
+        </Link>
+        , including the refund, cancellation and service delivery policies, and acknowledge our{" "}
+        <Link
+          to="/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-gold underline-offset-4"
+        >
+          Privacy Policy
+        </Link>
+        . Please give at least 24 hours&apos; notice for cancellation or rescheduling. Refunds are
+        reviewed and processed manually; approved refunds take 3–5 working days. Your statutory
+        consumer rights still apply.
+      </p>
       {error && (
         <p
           role="alert"

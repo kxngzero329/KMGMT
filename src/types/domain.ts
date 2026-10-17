@@ -24,11 +24,22 @@ export const BOOKING_STATUSES: BookingStatus[] = [
   "no_show",
   "expired",
 ];
-export const PAYMENT_STATUSES: PaymentStatus[] = ["pending", "paid", "failed", "cancelled", "refunded"];
+export const PAYMENT_STATUSES: PaymentStatus[] = [
+  "pending",
+  "paid",
+  "failed",
+  "cancelled",
+  "refunded",
+];
 export const ENQUIRY_STATUSES: EnquiryStatus[] = ["new", "read", "responded", "archived"];
 
 /** Statuses the admin may set manually. Payment is never marked paid by changing booking status. */
-export const ADMIN_SETTABLE_STATUSES: BookingStatus[] = ["confirmed", "completed", "cancelled", "no_show"];
+export const ADMIN_SETTABLE_STATUSES: BookingStatus[] = [
+  "confirmed",
+  "completed",
+  "cancelled",
+  "no_show",
+];
 
 export const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending_payment: "Awaiting payment",
@@ -56,10 +67,19 @@ export interface PublicBookingSummary {
   timezone: string;
   hold_expires_at: string | null;
   service_name: string;
+  consultation_format: string | null;
   duration_minutes: number;
   client_name: string;
   amount_cents: number | null;
   payment_status: PaymentStatus | null;
 }
 
-export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+export const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];

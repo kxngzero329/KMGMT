@@ -128,5 +128,8 @@ export async function submitEnquiry(input: {
     subject: input.subject,
     message: input.message,
   });
-  if (error) throw error;
+  if (error) {
+    if (error.message.includes("ENQUIRY_RATE_LIMIT")) throw new Error("ENQUIRY_RATE_LIMIT");
+    throw new Error("ENQUIRY_SUBMISSION_FAILED");
+  }
 }
