@@ -102,14 +102,12 @@ export function buildBookingEmail(
     format === "online"
       ? "Online (video call)"
       : format === "in_person"
-        ? "In person"
+        ? "In person (Kieraan's arrangement only)"
         : "To be arranged";
   const delivery =
-    format === "online"
-      ? "KMGMT will contact you on your booking WhatsApp number to arrange your video call. Any joining link will be shared directly before your appointment. Please have a reliable internet connection and a device with a camera and microphone."
-      : format === "in_person"
-        ? "KMGMT will contact you on your booking WhatsApp number to agree on the venue before your appointment. Please confirm the location before travelling."
-        : "KMGMT will contact you to arrange your consultation details.";
+    format === "in_person"
+      ? "An alternative arrangement applies only if Kieraan personally confirms it with you through WhatsApp. Otherwise your consultation is online. Your normal website booking and payment are still required."
+      : "Your consultation is online. Kieraan will contact you on your booking WhatsApp number to arrange the video call and share any joining link before your appointment. Please have reliable internet and a device with a camera and microphone. Any exception must be personally confirmed by Kieraan through WhatsApp; your website booking and payment are still required.";
   const admin = kind !== "customer_confirmation";
   const followup = kind === "admin_payment_followup";
   const title = followup

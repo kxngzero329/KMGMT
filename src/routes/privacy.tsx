@@ -1,24 +1,10 @@
+import { pageSeo } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PolicyContact } from "@/components/common/PolicyContact";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy | KMGMT" },
-      {
-        name: "description",
-        content:
-          "How KMGMT handles personal information, player CVs, football footage, bookings and payment records under South Africa's POPIA.",
-      },
-      { property: "og:title", content: "Privacy Policy | KMGMT" },
-      {
-        property: "og:description",
-        content:
-          "Your personal information, football materials and privacy rights when using KMGMT.",
-      },
-    ],
-  }),
+  head: () => pageSeo("/privacy"),
   component: Privacy,
 });
 
@@ -64,9 +50,9 @@ function Privacy() {
             CV upload.
           </li>
           <li>
-            <strong>Booking records:</strong> consultation, online or in-person format, appointment
-            date and time, booking reference, status, session arrangements and relevant
-            communications or notes.
+            <strong>Booking records:</strong> online consultation details, any directly agreed
+            arrangements, appointment date and time, booking reference, status, session arrangements
+            and relevant communications or notes.
           </li>
           <li>
             <strong>Payments:</strong> amount, currency, status, PayFast references and payment
@@ -94,8 +80,9 @@ function Privacy() {
         <p>
           We use information to answer enquiries, manage bookings, prepare and deliver
           consultations, provide agreed guidance, verify payments, send confirmations and receipts,
-          arrange calls or venues, and handle cancellations, refunds and complaints. We also keep
-          records for accounting, legal obligations, security and resolving disputes.
+          arrange online calls or an exception personally agreed with Kieraan, and handle
+          cancellations, refunds and complaints. We also keep records for accounting, legal
+          obligations, security and resolving disputes.
         </p>
         <p>
           The lawful basis depends on the purpose: taking steps at your request or performing our

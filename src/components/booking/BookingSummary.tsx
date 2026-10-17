@@ -31,7 +31,7 @@ function SummaryDetails({
   const rows = [
     {
       label: "Meeting format",
-      value: format ? consultationFormatLabel(format) : "Choose online or in person",
+      value: format ? consultationFormatLabel(format) : "Online (video call)",
       icon: MessageCircle,
     },
     {

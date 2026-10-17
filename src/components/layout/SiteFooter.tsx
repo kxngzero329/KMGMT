@@ -2,7 +2,7 @@
 import { ArrowRight, ArrowUp, ArrowUpRight, Compass, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/layout/SiteHeader";
-import { contactDetails } from "@/content/site";
+import { contactDetails, consultationPolicy } from "@/content/site";
 
 const FOOTER_GROUPS = [
   {
@@ -47,8 +47,11 @@ export function SiteFooter() {
           <div>
             <Wordmark className="text-2xl" />
             <p className="mt-4 max-w-xs text-sm leading-7 text-ink-foreground/60">
-              Independent football career guidance. Helping players and parents make informed
+              Online football career consultations. Helping players and parents make informed
               decisions about what comes next.
+            </p>
+            <p className="mt-3 max-w-xs text-xs leading-6 text-ink-foreground/60">
+              {consultationPolicy.notice}
             </p>
             <p className="mt-6 flex items-center gap-2.5 text-xs text-ink-foreground/65">
               <Compass className="h-4 w-4 text-gold" strokeWidth={1.5} aria-hidden />
@@ -130,27 +133,6 @@ export function SiteFooter() {
               className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
             >
               Terms
-            </Link>
-            <Link
-              to="/terms"
-              hash="refunds"
-              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
-            >
-              Refunds
-            </Link>
-            <Link
-              to="/terms"
-              hash="cancellations"
-              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
-            >
-              Cancellations
-            </Link>
-            <Link
-              to="/terms"
-              hash="service-delivery"
-              className="footer-link inline-flex min-h-11 items-center text-xs text-ink-foreground/60"
-            >
-              Service delivery
             </Link>
             <button
               type="button"

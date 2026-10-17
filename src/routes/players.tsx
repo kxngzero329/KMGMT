@@ -1,4 +1,6 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageSeo } from "@/lib/seo";
+import { publicSeoData } from "@/features/public/seo-loader";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowDown, ArrowRight, Compass, Search, ShieldCheck, Shirt, Users } from "lucide-react";
@@ -11,29 +13,21 @@ import { playersPage } from "@/content/site";
 import { playersQuery } from "@/features/public/queries";
 
 export const Route = createFileRoute("/players")({
-  head: () => ({
-    meta: [
-      { title: "Represented Players | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Meet the players KMGMT works with. Explore player profiles, playing backgrounds and the people behind each football journey.",
-      },
-      { property: "og:title", content: "Represented Players | KMGMT" },
-      {
-        property: "og:description",
-        content:
-          "Individual talent. Shared ambition. Meet the players behind the journeys at KMGMT.",
-      },
-    ],
+  loader: async ({ context }) => ({
+    players: await publicSeoData(
+      () => context.queryClient.fetchQuery({ ...playersQuery(), retry: false }),
+      () => context.queryClient.cancelQueries({ queryKey: playersQuery().queryKey, exact: true }),
+    ),
   }),
+  head: () => pageSeo("/players"),
   component: Players,
 });
 
 const APPROACH_ICONS = [Users, ShieldCheck, Compass] as const;
 
 function Players() {
-  const query = useQuery(playersQuery());
+  const initial = Route.useLoaderData();
+  const query = useQuery({ ...playersQuery(), initialData: initial.players ?? undefined });
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("");
   const players = query.data ?? [];

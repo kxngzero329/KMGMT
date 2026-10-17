@@ -14,6 +14,7 @@ const netlifySiteUrl =
     ? process.env["URL"]
     : process.env["DEPLOY_PRIME_URL"] || process.env["URL"];
 const siteUrl = process.env["VITE_SITE_URL"] || netlifySiteUrl;
+const noIndexPreview = !!process.env["CONTEXT"] && process.env["CONTEXT"] !== "production";
 
 export default defineConfig({
   plugins: [
@@ -31,7 +32,10 @@ export default defineConfig({
   // Reuse the wrapper's Nitro integration; adding another adapter duplicates it.
   nitro: { preset: "netlify" },
   vite: {
-    define: siteUrl ? { "import.meta.env.VITE_SITE_URL": JSON.stringify(siteUrl) } : {},
+    define: {
+      ...(siteUrl ? { "import.meta.env.VITE_SITE_URL": JSON.stringify(siteUrl) } : {}),
+      "import.meta.env.VITE_SEO_NOINDEX": JSON.stringify(noIndexPreview ? "true" : "false"),
+    },
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

@@ -14,7 +14,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   SLOT_UNAVAILABLE: "Sorry, that time was just taken. Please choose another time.",
   SERVICE_UNAVAILABLE: "This consultation is no longer available.",
   GUARDIAN_CONSENT_REQUIRED: "Parent/guardian consent is required for players under 18.",
-  INVALID_CONSULTATION_FORMAT: "Please choose an online or in-person consultation.",
+  INVALID_CONSULTATION_FORMAT: "Consultations are online. Please refresh and try again.",
 };
 
 /**

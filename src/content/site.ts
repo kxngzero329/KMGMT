@@ -13,17 +13,21 @@ export const consultant = {
   fifaLicensing: "",
   agencyAffiliation: "",
   yearsExperience: "",
-  location: "",
 };
 
 export const contactDetails = {
-  email: "", // e.g. "hello@kmgmt.co.za"
+  email: "Kieraan.mgmt@gmail.com",
   whatsapp: "+27 69 939 6858",
   instagram: "", // e.g. "https://instagram.com/kmgmt"
   facebook: "", // Approved Facebook profile URL
   linkedin: "", // Approved LinkedIn profile URL
   tiktok: "", // Approved TikTok profile URL
-  location: "", // e.g. "Johannesburg, South Africa"
+};
+
+export const consultationPolicy = {
+  label: "Online consultation (video call)",
+  notice:
+    "Consultations are online only. An alternative arrangement is available only if Kieraan personally confirms it with you through WhatsApp. You must still book and pay through this website as usual.",
 };
 
 /** Preview text is displayed without links until the approved contact details are filled in. */
@@ -31,7 +35,6 @@ export const contactPage = {
   placeholders: {
     email: "hello@kmgmt.example",
     whatsapp: "+27 XX XXX XXXX",
-    location: "Location to be confirmed",
   },
   socials: [
     { key: "instagram", name: "Instagram", placeholder: "@kmgmt.placeholder" },

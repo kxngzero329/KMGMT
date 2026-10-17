@@ -1,23 +1,10 @@
+import { pageSeo } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PolicyContact } from "@/components/common/PolicyContact";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms, Refunds & Booking Policies | KMGMT" },
-      {
-        name: "description",
-        content:
-          "KMGMT terms for football consultations and player advisory services, payments, manual refunds, cancellations, rescheduling and service delivery.",
-      },
-      { property: "og:title", content: "Terms & Conditions | KMGMT" },
-      {
-        property: "og:description",
-        content: "How KMGMT consultations are booked, paid for, delivered, cancelled and refunded.",
-      },
-    ],
-  }),
+  head: () => pageSeo("/terms"),
   component: Terms,
 });
 
@@ -75,10 +62,11 @@ function Terms() {
           2. Bookings and payments
         </h2>
         <p>
-          Choose a consultation, select online or in person, enter your details, select an available
-          date and time, and review the total before continuing to PayFast. Prices are displayed in
-          South African rand (ZAR). The session duration and price shown for your selected service
-          apply to either meeting format.
+          Choose your online consultation, enter your details, select an available date and time,
+          and review the total before continuing to PayFast. Prices are displayed in South African
+          rand (ZAR). The session duration and price are shown for your selected service. All
+          appointments must be booked and paid for through this website, including any alternative
+          arrangement personally confirmed by Kieraan through WhatsApp.
         </p>
         <p>
           Your selected time is held temporarily while you complete payment. An unpaid reservation
@@ -88,11 +76,11 @@ function Terms() {
         </p>
         <p>
           After successful payment and booking confirmation, the client receives an email with the
-          booking reference, chosen meeting format, date, time, consultation details and payment
-          receipt. KMGMT also receives the booking and payment details. Check your email, spam
-          folder and booking status, and contact us with your reference if you paid but have not
-          received confirmation. Please do not pay again before contacting us if you believe you
-          were charged.
+          booking reference, meeting format, date, time, consultation details and payment receipt.
+          KMGMT also receives the booking and payment details. Check your email, spam folder and
+          booking status, and contact us with your reference if you paid but have not received
+          confirmation. Please do not pay again before contacting us if you believe you were
+          charged.
         </p>
         <p>
           PayFast handles payment processing. Do not send card details, banking passwords, PINs or
@@ -107,6 +95,11 @@ function Terms() {
           website are shown in South African Standard Time (SAST, Africa/Johannesburg). KMGMT uses
           your submitted football background and questions to prepare for the session.
         </p>
+        <p>
+          <strong>Consultations are online only</strong> unless Kieraan personally confirms an
+          alternative arrangement with you through WhatsApp. An exception does not replace the
+          website booking or payment requirement.
+        </p>
         <ul>
           <li>
             <strong>Online consultations:</strong> KMGMT contacts you using the WhatsApp number
@@ -115,9 +108,12 @@ function Terms() {
             microphone, reliable internet and a quiet place to speak.
           </li>
           <li>
-            <strong>In-person consultations:</strong> the venue is agreed directly with KMGMT before
-            the appointment. Confirm the location before travelling. If your booking depends on a
-            particular location or accessibility requirement, contact us before paying.
+            <strong>Exceptions by Kieraan&apos;s arrangement only:</strong> any alternative to an
+            online consultation must be personally arranged and confirmed by Kieraan through
+            WhatsApp. Selecting or paying for a consultation does not entitle you to an in-person
+            meeting. Any agreed details are shared privately; KMGMT does not publish a consultation
+            address. Complete the normal website booking and payment even if Kieraan agrees an
+            exception.
           </li>
           <li>
             <strong>Joining and attendance:</strong> be ready at the scheduled time and provide a

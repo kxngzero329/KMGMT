@@ -1,4 +1,6 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageSeo } from "@/lib/seo";
+import { publicSeoData } from "@/features/public/seo-loader";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -30,26 +32,29 @@ import {
 } from "@/components/home/HomeDetails";
 import { playersQuery, servicesQuery, testimonialsQuery } from "@/features/public/queries";
 import { TestimonialSlider } from "@/components/home/TestimonialSlider";
-import { consultant } from "@/content/site";
+import { consultant, consultationPolicy } from "@/content/site";
 import hero from "@/assets/hero.png";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "KMGMT | Professional Guidance for Your Football Career" },
-      {
-        name: "description",
-        content:
-          "Book a football career consultation with KMGMT. Player assessments, career decisions and international pathway guidance for South African players and parents.",
-      },
-      { property: "og:title", content: "KMGMT | Professional Guidance for Your Football Career" },
-      {
-        property: "og:description",
-        content:
-          "Football career consultations, player assessments and international pathway guidance.",
-      },
-    ],
-  }),
+  loader: async ({ context }) => {
+    const [services, players, testimonials] = await Promise.all([
+      publicSeoData(
+        () => context.queryClient.fetchQuery({ ...servicesQuery, retry: false }),
+        () => context.queryClient.cancelQueries({ queryKey: servicesQuery.queryKey, exact: true }),
+      ),
+      publicSeoData(
+        () => context.queryClient.fetchQuery({ ...playersQuery(), retry: false }),
+        () => context.queryClient.cancelQueries({ queryKey: playersQuery().queryKey, exact: true }),
+      ),
+      publicSeoData(
+        () => context.queryClient.fetchQuery({ ...testimonialsQuery, retry: false }),
+        () =>
+          context.queryClient.cancelQueries({ queryKey: testimonialsQuery.queryKey, exact: true }),
+      ),
+    ]);
+    return { services, players, testimonials };
+  },
+  head: () => pageSeo("/"),
   component: Home,
 });
 
@@ -114,7 +119,7 @@ const FAQS = [
   },
   {
     q: "Are consultations online?",
-    a: "Choose online (video call) or in person when booking. KMGMT contacts you on WhatsApp to arrange the call or agree on a venue before your appointment. If you need a particular location, contact us before paying.",
+    a: consultationPolicy.notice,
   },
   {
     q: "Can a parent book for their child?",
@@ -127,15 +132,18 @@ const FAQS = [
 ];
 
 function Home() {
-  const services = useQuery(servicesQuery);
-  const players = useQuery(playersQuery());
-  const testimonials = useQuery(testimonialsQuery);
+  const initial = Route.useLoaderData();
+  const services = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
+  const players = useQuery({ ...playersQuery(), initialData: initial.players ?? undefined });
+  const testimonials = useQuery({
+    ...testimonialsQuery,
+    initialData: initial.testimonials ?? undefined,
+  });
   const credentials = [
     ["Qualifications", consultant.qualifications],
     ["FIFA licensing", consultant.fifaLicensing],
     ["Agency", consultant.agencyAffiliation],
     ["Experience", consultant.yearsExperience],
-    ["Based in", consultant.location],
   ].filter(([, value]) => value);
   const quotes = testimonials.data ?? [];
 
@@ -166,8 +174,8 @@ function Home() {
             </h1>
             <span className="gold-rule hero-rule mt-8" />
             <p className="hero-enter hero-copy mt-6 max-w-lg text-base leading-relaxed text-ink-foreground/80 sm:text-lg">
-              Helping football players understand their current position, evaluate their options and
-              plan the next stage of their career.
+              Online consultations helping football players understand their current position,
+              evaluate their options and plan the next stage of their career.
             </p>
             <div className="hero-enter hero-actions mt-9 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" variant="inverse" className="booking-button">

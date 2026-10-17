@@ -1,18 +1,19 @@
 import { z } from "zod";
+import { consultationPolicy } from "@/content/site";
 
 export const consultationFormatSchema = z.enum(["online", "in_person"]);
 export type ConsultationFormat = z.infer<typeof consultationFormatSchema>;
 
 export const CONSULTATION_FORMAT_LABEL: Record<ConsultationFormat, string> = {
   online: "Online (video call)",
-  in_person: "In person",
+  in_person: "In person (Kieraan's arrangement only)",
 };
 
 export const CONSULTATION_DELIVERY: Record<ConsultationFormat, string> = {
   online:
-    "KMGMT will contact you on the WhatsApp number you provide to arrange your video call. Any joining link will be shared directly before your appointment. Please have a reliable internet connection and a device with a camera and microphone.",
+    "Your consultation is online. Kieraan will contact you on your booking WhatsApp number to arrange the video call and share any joining link before your appointment. Please have reliable internet and a device with a camera and microphone. Any exception must be personally confirmed by Kieraan through WhatsApp; your website booking and payment are still required.",
   in_person:
-    "KMGMT will contact you on the WhatsApp number you provide to agree on the venue before your appointment. Please confirm the location with us before travelling. If you need a specific location, contact us before booking.",
+    "An alternative arrangement applies only if Kieraan personally confirms it with you through WhatsApp. Otherwise your consultation is online. All appointments must still be booked and paid for through this website as usual.",
 };
 
 export function consultationFormatLabel(format: string | null | undefined) {
@@ -24,5 +25,5 @@ export function consultationFormatLabel(format: string | null | undefined) {
 export function consultationDelivery(format: string | null | undefined) {
   return format === "online" || format === "in_person"
     ? CONSULTATION_DELIVERY[format]
-    : "KMGMT will contact you to arrange your consultation details.";
+    : consultationPolicy.notice;
 }

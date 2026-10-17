@@ -1,4 +1,6 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageSeo } from "@/lib/seo";
+import { publicSeoData } from "@/features/public/seo-loader";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDown,
@@ -22,22 +24,13 @@ import { serviceGuidance } from "@/content/site";
 import { servicesQuery } from "@/features/public/queries";
 
 export const Route = createFileRoute("/services")({
-  head: () => ({
-    meta: [
-      { title: "Consultation Services | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Find the right football consultation with Kieraan. Explore career planning, international pathways, career decisions and player assessments, with clear pricing and secure booking.",
-      },
-      { property: "og:title", content: "Consultation Services | KMGMT" },
-      {
-        property: "og:description",
-        content:
-          "A focused conversation. An honest perspective. Choose the football consultation that fits your next step.",
-      },
-    ],
+  loader: async ({ context }) => ({
+    services: await publicSeoData(
+      () => context.queryClient.fetchQuery({ ...servicesQuery, retry: false }),
+      () => context.queryClient.cancelQueries({ queryKey: servicesQuery.queryKey, exact: true }),
+    ),
   }),
+  head: ({ loaderData }) => pageSeo("/services", loaderData?.services ?? []),
   component: ServicesPage,
 });
 
@@ -60,6 +53,10 @@ const EXPECTATIONS = [
 ];
 const FAQS = [
   {
+    q: "Are consultations online?",
+    a: "Yes. Consultations are online only unless Kieraan personally arranges otherwise with you through WhatsApp. You must still book and pay through this website as usual.",
+  },
+  {
     q: "Which consultation is right for me?",
     a: "Choose the session that matches your main question. Career Consultation covers your wider plan; International focuses on playing abroad; Career Decision helps you weigh a specific choice; Player Assessment looks at where you stand. If you're unsure, the General Football Consultation is a useful starting point.",
   },
@@ -73,7 +70,7 @@ const FAQS = [
   },
   {
     q: "How do booking and payment work?",
-    a: "Choose a consultation and whether to meet online or in person, share your details and select an available date and time. Your slot is held temporarily while you pay through PayFast. Once payment is verified, your booking is confirmed and KMGMT arranges the call or venue directly with you.",
+    a: "Choose your online consultation, share your details and select an available date and time. Your slot is held temporarily while you pay through PayFast. Once payment is verified, your booking is confirmed and Kieraan arranges the video call with you through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; the website booking and payment are still required.",
   },
   {
     q: "Can I cancel, reschedule or request a refund?",
@@ -82,7 +79,8 @@ const FAQS = [
 ];
 
 function ServicesPage() {
-  const query = useQuery(servicesQuery);
+  const initial = Route.useLoaderData();
+  const query = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
   const services = query.data ?? [];
   const featured = services.find((service) => service.slug === "general-football-consultation");
   const otherServices = services.filter((service) => service.id !== featured?.id);

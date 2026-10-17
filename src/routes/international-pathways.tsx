@@ -1,4 +1,6 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageSeo } from "@/lib/seo";
+import { publicSeoData } from "@/features/public/seo-loader";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDown,
@@ -28,22 +30,13 @@ import { servicesQuery } from "@/features/public/queries";
 import { formatZAR } from "@/lib/utils/format";
 
 export const Route = createFileRoute("/international-pathways")({
-  head: () => ({
-    meta: [
-      { title: "International Football Pathways | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Explore your next step beyond South Africa with Kieraan. Honest guidance on international football markets, player readiness, CVs, footage and career planning.",
-      },
-      { property: "og:title", content: "International Football Pathways | KMGMT" },
-      {
-        property: "og:description",
-        content:
-          "South African roots. International ambition. Build a clearer plan for your football career with KMGMT.",
-      },
-    ],
+  loader: async ({ context }) => ({
+    services: await publicSeoData(
+      () => context.queryClient.fetchQuery({ ...servicesQuery, retry: false }),
+      () => context.queryClient.cancelQueries({ queryKey: servicesQuery.queryKey, exact: true }),
+    ),
   }),
+  head: () => pageSeo("/international-pathways"),
   component: Pathways,
 });
 
@@ -51,7 +44,8 @@ const STAGE_ICONS = [Globe2, Target, RouteIcon] as const;
 const PREPARATION_ICONS = [FileText, Video, Target, Compass] as const;
 
 function Pathways() {
-  const query = useQuery(servicesQuery);
+  const initial = Route.useLoaderData();
+  const query = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
   const service = query.data?.find((item) => item.slug === "international-career-consultation");
 
   return (

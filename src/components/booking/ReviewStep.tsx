@@ -125,15 +125,17 @@ export function ReviewStep({
                   <span className="min-w-0 break-words text-sm font-semibold leading-6">
                     {value}
                   </span>
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => onEdit(step)}
-                    aria-label={`Edit ${label.toLowerCase()}`}
-                    className="-my-2 inline-flex min-h-11 shrink-0 items-center px-1 text-xs font-semibold text-[#806022] underline decoration-gold/50 underline-offset-4 disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    Edit
-                  </button>
+                  {label !== "Meeting format" && (
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => onEdit(step)}
+                      aria-label={`Edit ${label.toLowerCase()}`}
+                      className="-my-2 inline-flex min-h-11 shrink-0 items-center px-1 text-xs font-semibold text-[#806022] underline decoration-gold/50 underline-offset-4 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </dd>
               </div>
             ))}

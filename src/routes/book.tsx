@@ -1,3 +1,4 @@
+import { pageSeo } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -17,22 +18,7 @@ import type { ConsultationFormat } from "@/lib/consultations";
 
 export const Route = createFileRoute("/book")({
   validateSearch: z.object({ service: z.string().max(80).optional() }),
-  head: () => ({
-    meta: [
-      { title: "Book a Consultation | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Book a personal football career consultation with Kieraan. Choose your session, share your details, find an available time and pay securely with PayFast.",
-      },
-      { property: "og:title", content: "Book a Consultation | KMGMT" },
-      {
-        property: "og:description",
-        content:
-          "Your next move starts here. Book a consultation with Kieraan in five clear steps.",
-      },
-    ],
-  }),
+  head: () => pageSeo("/book"),
   component: BookPage,
 });
 
@@ -41,7 +27,7 @@ function BookPage() {
   const services = useQuery(servicesQuery);
   const [step, setStep] = useState(0);
   const [service, setService] = useState<PublicService | null>(null);
-  const [format, setFormat] = useState<ConsultationFormat | null>(null);
+  const format: ConsultationFormat = "online";
   const [draft, setDraft] = useState<DetailsDraft>(emptyDetails);
   const [client, setClient] = useState<ClientDetails | null>(null);
   const [date, setDate] = useState<string | null>(null);
@@ -95,8 +81,9 @@ function BookPage() {
           </div>
           <div className="max-w-md">
             <p className="text-sm leading-7 text-ink-foreground/70">
-              Choose a consultation, share your background and find a time that works for you. A
-              focused conversation about what comes next.
+              Book an online consultation with Kieraan. Share your background and find a time that
+              works for you. Any alternative arrangement must be personally confirmed by Kieraan
+              through WhatsApp; book and pay here as usual.
             </p>
             <p className="mt-4 flex items-center gap-2 text-[11px] text-ink-foreground/60">
               <LockKeyhole className="h-3.5 w-3.5 text-gold" strokeWidth={1.3} aria-hidden />
@@ -138,9 +125,7 @@ function BookPage() {
                       }
                       setService(selected);
                     }}
-                    format={format}
-                    onFormatChange={setFormat}
-                    onNext={() => service && format && go(1)}
+                    onNext={() => service && go(1)}
                     onRetry={() => void services.refetch()}
                   />
                 </>

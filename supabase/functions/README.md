@@ -59,10 +59,14 @@ stops pending confirmations. Existing historical bookings are not backfilled.
 
 Set these with the Supabase secrets UI/CLI. Never add them to `VITE_*` variables.
 The admin address is stored in Supabase secrets rather than application source.
-The booking format (`online` or `in_person`) is saved atomically with the hold
-and included in new email snapshots. Historical bookings remain unspecified.
-KMGMT arranges the video call or venue directly via WhatsApp before the session;
-the website does not create video meetings or issue refunds automatically.
+New website bookings are automatically saved as `online`, using the same hold
+RPC, availability rules, five booking steps and payment flow. The format is
+included in email snapshots. Historical `in_person` and unspecified records
+remain supported; the public site offers no in-person selector. Only Kieraan
+may personally confirm an exception through WhatsApp, and website booking and
+payment are still required. No consultation address is published. Kieraan arranges
+the video call directly before the session; the website does not create video
+meetings or issue refunds automatically.
 Jobs whose first send was already attempted keep their original recipient/payload
 to preserve Resend idempotency. Future unattempted jobs use the new secret.
 

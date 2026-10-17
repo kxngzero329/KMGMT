@@ -1,4 +1,5 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageSeo } from "@/lib/seo";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowDown,
@@ -7,7 +8,6 @@ import {
   CheckCircle2,
   LoaderCircle,
   Mail,
-  MapPin,
   MessageCircle,
   Send,
 } from "lucide-react";
@@ -17,24 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/common/Field";
 import { contactSchema } from "@/lib/validation/schemas";
 import { submitEnquiry } from "@/features/public/queries";
-import { contactDetails, contactPage } from "@/content/site";
+import { contactDetails, contactPage, consultationPolicy } from "@/content/site";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Have a question about your football career? Send KMGMT an enquiry, connect on social or book a consultation with Kieraan.",
-      },
-      { property: "og:title", content: "Contact | KMGMT" },
-      {
-        property: "og:description",
-        content: "Good questions. Better direction. Get in touch with KMGMT.",
-      },
-    ],
-  }),
+  head: () => pageSeo("/contact"),
   component: Contact,
 });
 
@@ -56,13 +42,6 @@ function ContactMethods() {
       value: contactDetails.whatsapp,
       placeholder: contactPage.placeholders.whatsapp,
       href: phoneDigits ? `https://wa.me/${phoneDigits}` : "",
-    },
-    {
-      label: "Location",
-      icon: MapPin,
-      value: contactDetails.location,
-      placeholder: contactPage.placeholders.location,
-      href: "",
     },
   ];
   return (
@@ -98,13 +77,17 @@ function ContactMethods() {
               </dd>
               {!value && (
                 <p className="mt-1 text-[10px] text-muted-foreground">
-                  {label === "Location" ? "Details coming soon" : "Placeholder contact details"}
+                  Contact details coming soon
                 </p>
               )}
             </div>
           </div>
         ))}
       </dl>
+      <div className="mt-6 border-t border-gold/20 pt-5">
+        <p className="text-sm font-semibold">{consultationPolicy.label}</p>
+        <p className="mt-2 text-xs leading-6 text-muted-foreground">{consultationPolicy.notice}</p>
+      </div>
     </div>
   );
 }

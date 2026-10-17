@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import { pageSeo } from "@/lib/seo";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowRight, Compass, Quote, Target, Users } from "lucide-react";
 import { BookingAssurances, PitchLines, Reveal } from "@/components/home/HomeDetails";
@@ -6,21 +7,7 @@ import { Button } from "@/components/ui/button";
 import { aboutPage, consultant } from "@/content/site";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "About Kieraan | KMGMT" },
-      {
-        name: "description",
-        content:
-          "Meet Kieraan, the independent football career consultant behind KMGMT. Personal, honest guidance for players and parents planning their next step.",
-      },
-      { property: "og:title", content: "About Kieraan | KMGMT" },
-      {
-        property: "og:description",
-        content: "The person behind the guidance. Meet Kieraan and the approach behind KMGMT.",
-      },
-    ],
-  }),
+  head: () => pageSeo("/about"),
   component: About,
 });
 
@@ -85,7 +72,6 @@ function About() {
     ["FIFA licensing", consultant.fifaLicensing],
     ["Agency affiliation", consultant.agencyAffiliation],
     ["Experience", consultant.yearsExperience],
-    ["Location", consultant.location],
   ].filter(([, value]) => value);
 
   return (

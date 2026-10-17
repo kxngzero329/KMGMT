@@ -17,11 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Toaster } from "@/components/ui/sonner";
-
-const ogImageUrl = new URL(
-  "/og-image.png",
-  import.meta.env["VITE_SITE_URL"] || "https://kmgmt-preview.vercel.app",
-).href;
+import { OG_IMAGE_URL as ogImageUrl } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -88,10 +84,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      // Public page heads explicitly opt in. Unknown/private routes stay excluded.
+      { name: "robots", content: "noindex, nofollow" },
       { title: "KMGMT | Football Career Consultancy" },
-      { name: "description", content: "Independent football career guidance for players and parents in South Africa." },
+      {
+        name: "description",
+        content: "Independent football career guidance for players and parents in South Africa.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "KMGMT" },
+      { property: "og:locale", content: "en_ZA" },
       { property: "og:image", content: ogImageUrl },
       { property: "og:image:secure_url", content: ogImageUrl },
       { property: "og:image:type", content: "image/png" },
@@ -111,6 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -153,7 +156,10 @@ function RootComponent() {
         <Outlet />
       ) : (
         <div className="flex min-h-screen flex-col">
-          <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:p-2">
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:p-2"
+          >
             Skip to content
           </a>
           <SiteHeader />
