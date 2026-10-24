@@ -240,6 +240,33 @@ export async function buildEftEmail(
     : [];
   const table = (items: [string, string][]) =>
     `<table role="presentation" style="width:100%;border-collapse:collapse">${items.map(([key, value]) => `<tr><td style="width:36%;padding:10px 12px 10px 0;border-bottom:1px solid #e8e4dc;vertical-align:top;color:#625d53">${escape(key)}</td><td style="padding:10px 0;border-bottom:1px solid #e8e4dc;white-space:pre-wrap;overflow-wrap:anywhere">${escape(value)}</td></tr>`).join("")}</table>`;
+  // Admin notifications contain booking information and a dashboard link only.
+  // Customer payment instructions and the PDF invoice stay in the customer email.
+  if (admin) {
+    const title = "Booking received — EFT payment pending";
+    const intro =
+      "A client has reserved an online consultation and selected EFT. Payment is pending and has not been verified.";
+    const dashboardUrl = `${config.email.siteUrl}/admin/bookings`;
+    return {
+      from: config.email.from,
+      to: [config.email.admin],
+      reply_to: client.email,
+      subject: `${title} | ${booking.reference} | KMGMT`,
+      html: `<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body style="margin:0;background:#f5f3ee;color:#242424;font:14px/1.6 Arial,sans-serif"><table role="presentation" style="width:100%;padding:24px 12px"><tr><td><table role="presentation" style="width:100%;max-width:660px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:28px 32px"><h1 style="font-size:24px;margin:0 0 16px">${escape(title)}</h1><p>${escape(intro)}</p><h2 style="font-size:16px;margin-top:28px">Booking &amp; payment details</h2>${table(rows)}${clientRows.length ? `<h2 style="font-size:16px;margin-top:28px">Client details</h2>${table(clientRows)}` : ""}<p style="margin-top:28px"><a href="${escape(dashboardUrl)}" style="display:inline-block;padding:12px 18px;background:#242424;color:#fffdf8;text-decoration:none;font-weight:bold;border-radius:4px">View in your dashboard</a></p></td></tr></table></td></tr></table></body></html>`,
+      text: [
+        title,
+        intro,
+        "",
+        "Booking & payment details",
+        ...rows.map(([key, value]) => `${key}: ${value}`),
+        "",
+        "Client details",
+        ...clientRows.map(([key, value]) => `${key}: ${value}`),
+        "",
+        `View in your dashboard: ${dashboardUrl}`,
+      ].join("\n"),
+    };
+  }
   const title = admin ? "New EFT booking — payment pending" : "Booking confirmation & EFT invoice";
   const intro = admin
     ? "A client has reserved an online consultation and selected EFT. Their invoice is attached. No funds have been verified; review proof and your bank account before marking the payment received in admin."

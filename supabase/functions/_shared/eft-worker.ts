@@ -13,7 +13,8 @@ const payloadSchema = z.object({
   text: z.string(),
   attachments: z
     .array(z.object({ filename: z.string().endsWith(".pdf"), content: z.string().min(1) }))
-    .length(1),
+    .length(1)
+    .optional(),
 });
 const jobSchema = z.object({
   id: z.string().uuid(),
@@ -46,6 +47,8 @@ export async function processEftEmails(deps: PaymentDependencies) {
       });
       if (frozen.error) throw new DeliveryError("eft_payload_storage_failed");
       const message = payloadSchema.parse(frozen.data);
+      if (job.kind === "customer_invoice" && message.attachments?.length !== 1)
+        throw new DeliveryError("customer_invoice_attachment_missing", true);
       const id = await sendResendEmail(message, config.email, `kmgmt-eft-email/${job.id}`);
       const saved = await deps.supabase.rpc("finish_eft_email_job", {
         p_id: job.id,

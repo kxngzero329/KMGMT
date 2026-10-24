@@ -54,11 +54,17 @@ secrets and private email payloads/attachments; there is no public invoice URL,
 bucket, bank table or account-details API response. The existing PayFast email
 templates, notification handler and email worker are unchanged.
 
-The EFT email and status page include WhatsApp and email proof-of-payment buttons.
+The customer EFT email and status page include WhatsApp and email proof-of-payment buttons.
 These open the chosen app with the reference filled in; clients must attach the
 proof themselves. They do not upload proof to Supabase or automatically verify
 payment. The proof email recipient is Kieraan's public contact address, separate
 from the temporary admin notification recipient in `ADMIN_NOTIFICATION_EMAIL`.
+
+Admin EFT emails contain booking, payment and client details with a **View in your
+dashboard** link. Customer payment instructions, bank details, proof buttons,
+session-arrangement paragraphs and the customer invoice attachment are omitted
+from admin notifications. The customer confirmation email and PDF are unchanged.
+Previously frozen delivery payloads keep their original content for safe retries.
 
 The admin booking list, dashboard, booking details and payment list show the
 selected method. After checking that the full amount arrived in the bank account,
