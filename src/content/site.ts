@@ -27,7 +27,7 @@ export const contactDetails = {
 export const consultationPolicy = {
   label: "Online consultation (video call)",
   notice:
-    "Consultations are online only. An alternative arrangement is available only if Kieraan personally confirms it with you through WhatsApp. You must still book and pay through this website as usual.",
+    "Consultations are online only. An alternative arrangement is available only if Kieraan personally confirms it with you through WhatsApp. You must still book through this website and pay using your selected payment method.",
 };
 
 /** Preview text is displayed without links until the approved contact details are filled in. */

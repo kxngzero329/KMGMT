@@ -1,8 +1,15 @@
 import { Check, ArrowLeft, ArrowRight, LoaderCircle, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const BOOKING_STEPS = ["Consultation", "Your details", "Date", "Time", "Review"] as const;
-const MOBILE_LABELS = ["Session", "Details", "Date", "Time", "Review"];
+export const BOOKING_STEPS = [
+  "Consultation",
+  "Your details",
+  "Date",
+  "Time",
+  "Payment",
+  "Review",
+] as const;
+const MOBILE_LABELS = ["Session", "Details", "Date", "Time", "Payment", "Review"];
 
 export function Stepper({ current, onEdit }: { current: number; onEdit?: (step: number) => void }) {
   return (
@@ -14,7 +21,7 @@ export function Stepper({ current, onEdit }: { current: number; onEdit?: (step: 
         </span>
         <span className="font-semibold text-[#806022]">{BOOKING_STEPS[current]}</span>
       </p>
-      <ol className="grid grid-cols-5">
+      <ol className="grid grid-cols-6">
         {BOOKING_STEPS.map((label, index) => {
           const completed = index < current;
           const active = index === current;

@@ -449,6 +449,107 @@ export type Database = {
         }
         Relationships: []
       }
+      eft_booking_requests: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          payload_hash: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id: string
+          payload_hash: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          payload_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eft_booking_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eft_email_outbox: {
+        Row: {
+          attempts: number
+          booking_id: string
+          created_at: string
+          first_attempt_at: string | null
+          id: string
+          kind: string
+          last_error_code: string | null
+          lock_token: string | null
+          locked_until: string | null
+          next_attempt_at: string
+          payment_id: string
+          request_payload: Json | null
+          resend_id: string | null
+          sent_at: string | null
+          snapshot: Json
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          booking_id: string
+          created_at?: string
+          first_attempt_at?: string | null
+          id?: string
+          kind: string
+          last_error_code?: string | null
+          lock_token?: string | null
+          locked_until?: string | null
+          next_attempt_at?: string
+          payment_id: string
+          request_payload?: Json | null
+          resend_id?: string | null
+          sent_at?: string | null
+          snapshot: Json
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          booking_id?: string
+          created_at?: string
+          first_attempt_at?: string | null
+          id?: string
+          kind?: string
+          last_error_code?: string | null
+          lock_token?: string | null
+          locked_until?: string | null
+          next_attempt_at?: string
+          payment_id?: string
+          request_payload?: Json | null
+          resend_id?: string | null
+          sent_at?: string | null
+          snapshot?: Json
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eft_email_outbox_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eft_email_outbox_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount_cents: number
@@ -456,12 +557,15 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          invoice_issued_at: string | null
+          invoice_number: string | null
           paid_at: string | null
           provider: string
           provider_payment_id: string | null
           raw_reference: Json | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
+          verified_by: string | null
         }
         Insert: {
           amount_cents: number
@@ -469,12 +573,15 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          invoice_issued_at?: string | null
+          invoice_number?: string | null
           paid_at?: string | null
           provider?: string
           provider_payment_id?: string | null
           raw_reference?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
+          verified_by?: string | null
         }
         Update: {
           amount_cents?: number
@@ -482,12 +589,15 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          invoice_issued_at?: string | null
+          invoice_number?: string | null
           paid_at?: string | null
           provider?: string
           provider_payment_id?: string | null
           raw_reference?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -679,6 +789,33 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      claim_eft_email_jobs: {
+        Args: { p_limit?: number }
+        Returns: {
+          attempts: number
+          booking_id: string
+          created_at: string
+          first_attempt_at: string | null
+          id: string
+          kind: string
+          last_error_code: string | null
+          lock_token: string | null
+          locked_until: string | null
+          next_attempt_at: string
+          payment_id: string
+          request_payload: Json | null
+          resend_id: string | null
+          sent_at: string | null
+          snapshot: Json
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "eft_email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       create_booking_hold:
         | {
             Args: { p_client: Json; p_service_id: string; p_start: string }
@@ -701,7 +838,21 @@ export type Database = {
               hold_expires_at: string
             }[]
           }
+      create_eft_booking: {
+        Args: {
+          p_client: Json
+          p_request_id: string
+          p_service_id: string
+          p_start: string
+        }
+        Returns: {
+          booking_id: string
+          booking_reference: string
+          invoice_number: string
+        }[]
+      }
       dispatch_booking_email_worker: { Args: never; Returns: undefined }
+      dispatch_eft_email_worker: { Args: never; Returns: undefined }
       enqueue_paid_booking_emails: {
         Args: { p_booking_id: string }
         Returns: undefined
@@ -727,11 +878,25 @@ export type Database = {
         }
         Returns: undefined
       }
+      finish_eft_email_job: {
+        Args: {
+          p_error_code?: string
+          p_id: string
+          p_lock: string
+          p_permanent?: boolean
+          p_resend_id?: string
+        }
+        Returns: undefined
+      }
       freeze_booking_email_request: {
         Args: { p_id: string; p_lock: string; p_payload: Json }
         Returns: Json
       }
       freeze_contact_email_request: {
+        Args: { p_id: string; p_lock: string; p_payload: Json }
+        Returns: Json
+      }
+      freeze_eft_email_request: {
         Args: { p_id: string; p_lock: string; p_payload: Json }
         Returns: Json
       }
@@ -745,6 +910,7 @@ export type Database = {
       }
       get_booking_public: { Args: { p_booking_id: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      verify_eft_payment: { Args: { p_payment_id: string }; Returns: undefined }
     }
     Enums: {
       booking_status:

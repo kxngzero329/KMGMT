@@ -113,7 +113,7 @@ export function SiteFooter() {
             </Button>
             <p className="mt-4 flex items-center gap-2 text-[11px] text-ink-foreground/50">
               <LockKeyhole className="h-3 w-3 text-gold" aria-hidden />
-              Secure payment through PayFast
+              Online booking · EFT invoice by email
             </p>
           </div>
         </div>

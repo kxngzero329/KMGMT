@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BOOKING_STEPS } from "./Stepper";
 
 export function BookingStepHeading({
   step,
@@ -15,7 +16,7 @@ export function BookingStepHeading({
   return (
     <div>
       <p className="eyebrow home-eyebrow text-[10px]">
-        Step {String(step + 1).padStart(2, "0")} / 05
+        Step {String(step + 1).padStart(2, "0")} / {String(BOOKING_STEPS.length).padStart(2, "0")}
       </p>
       <h2
         tabIndex={-1}

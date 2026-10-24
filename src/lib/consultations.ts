@@ -13,7 +13,7 @@ export const CONSULTATION_DELIVERY: Record<ConsultationFormat, string> = {
   online:
     "Your consultation is online. Kieraan will contact you on your booking WhatsApp number to arrange the video call and share any joining link before your appointment. Please have reliable internet and a device with a camera and microphone. Any exception must be personally confirmed by Kieraan through WhatsApp; your website booking and payment are still required.",
   in_person:
-    "An alternative arrangement applies only if Kieraan personally confirms it with you through WhatsApp. Otherwise your consultation is online. All appointments must still be booked and paid for through this website as usual.",
+    "An alternative arrangement applies only if Kieraan personally confirms it with you through WhatsApp. Otherwise your consultation is online. All appointments must still be booked through this website and paid using your selected payment method.",
 };
 
 export function consultationFormatLabel(format: string | null | undefined) {

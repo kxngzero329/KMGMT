@@ -13,12 +13,14 @@ import { formatDate, formatTime, formatZAR } from "@/lib/utils/format";
 import type { PublicService } from "@/features/public/queries";
 import { consultant } from "@/content/site";
 import { consultationFormatLabel, type ConsultationFormat } from "@/lib/consultations";
+import { paymentMethodLabel, type PaymentMethod } from "@/lib/payment-methods";
 
 type SummaryProps = {
   service: PublicService | null;
   format: ConsultationFormat | null;
   date: string | null;
   slot: string | null;
+  paymentMethod?: PaymentMethod | null;
 };
 
 function SummaryDetails({
@@ -26,9 +28,15 @@ function SummaryDetails({
   format,
   date,
   slot,
+  paymentMethod,
   dark = false,
 }: SummaryProps & { dark?: boolean }) {
   const rows = [
+    {
+      label: "Payment method",
+      value: paymentMethod ? paymentMethodLabel(paymentMethod) : "Choose at the payment step",
+      icon: LockKeyhole,
+    },
     {
       label: "Meeting format",
       value: format ? consultationFormatLabel(format) : "Online (video call)",
@@ -133,7 +141,7 @@ export function BookingSummary(props: SummaryProps) {
               {formatZAR(props.service.price_cents)}
             </p>
             <p className="mt-2 text-[11px] text-ink-foreground/55">
-              Consultation total · Payment at the final step
+              Consultation total · EFT invoice by email
             </p>
             <div className="mt-7 border-t border-gold/20 pt-6">
               <SummaryDetails {...props} dark />
@@ -154,7 +162,8 @@ export function BookingSummary(props: SummaryProps) {
         )}
         <p className="mt-7 flex items-start gap-2.5 border-t border-gold/20 pt-5 text-[11px] leading-6 text-ink-foreground/60">
           <LockKeyhole className="mt-1 h-3.5 w-3.5 shrink-0 text-gold" aria-hidden />
-          Secure payment through PayFast. Your booking is confirmed after payment is received.
+          EFT bookings receive an invoice by email. Payment remains pending until funds are verified
+          manually. PayFast is temporarily unavailable during verification.
         </p>
       </div>
       <div className="rounded-md border border-gold/25 bg-background p-6">

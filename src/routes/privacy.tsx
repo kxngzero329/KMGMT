@@ -13,7 +13,7 @@ function Privacy() {
     <>
       <PageHeader eyebrow="Legal" title="Privacy Policy" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 17 October 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 24 October 2026</p>
         <h2>1. Who this policy covers</h2>
         <p>
           KMGMT provides football consultations, career guidance and player advisory services
@@ -55,9 +55,12 @@ function Privacy() {
             and relevant communications or notes.
           </li>
           <li>
-            <strong>Payments:</strong> amount, currency, status, PayFast references and payment
-            notifications. PayFast processes payment credentials; KMGMT does not collect or store
-            your full card number, security code, banking password or one-time password.
+            <strong>Payments:</strong> selected payment method, amount, currency, status, invoice
+            and payment references, verification records and payment notifications. EFT proof of
+            payment you choose to send by WhatsApp or email is used to reconcile your payment. Share
+            only the information needed for that purpose. PayFast processes online payment
+            credentials when available; KMGMT does not collect or store your full card number,
+            security code, banking password or one-time password.
           </li>
           <li>
             <strong>Guardian details:</strong> parent or guardian name, email, phone and consent for
@@ -79,8 +82,8 @@ function Privacy() {
         <h2>3. Purposes and lawful processing</h2>
         <p>
           We use information to answer enquiries, manage bookings, prepare and deliver
-          consultations, provide agreed guidance, verify payments, send confirmations and receipts,
-          arrange online calls or an exception personally agreed with Kieraan, and handle
+          consultations, provide agreed guidance, verify payments, send confirmations, invoices and
+          receipts, arrange online calls or an exception personally agreed with Kieraan, and handle
           cancellations, refunds and complaints. We also keep records for accounting, legal
           obligations, security and resolving disputes.
         </p>
@@ -130,15 +133,16 @@ function Privacy() {
             <strong>PayFast:</strong> payment processing and transaction verification.
           </li>
           <li>
-            <strong>Resend:</strong> booking confirmation, receipt and admin enquiry emails. Client
-            emails contain booking and payment details; KMGMT&apos;s admin notifications include
-            submitted booking information or contact-form name, email, optional phone, subject and
-            message, as appropriate. Enquiry notifications use the submitted email as the reply
-            address.
+            <strong>Resend:</strong> booking confirmation, EFT invoice attachments, receipt and
+            admin enquiry emails. Client emails contain booking and payment details; KMGMT&apos;s
+            admin notifications include submitted booking information or contact-form name, email,
+            optional phone, subject and message, as appropriate. Enquiry notifications use the
+            submitted email as the reply address.
           </li>
           <li>
-            <strong>WhatsApp and an agreed video-call provider:</strong> communications and online
-            arrangements when those channels are used. Their own privacy terms also apply.
+            <strong>Email, WhatsApp and an agreed video-call provider:</strong> proof-of-payment
+            submissions, communications and online arrangements when those channels are used. Their
+            own privacy terms also apply.
           </li>
           <li>
             <strong>Professional advisers and authorities:</strong> where necessary and lawful for

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import type { EmailConfig, ResendMessage } from "./booking-email.ts";
 
+export type ResendEnvelope = ResendMessage & {
+  attachments?: { filename: string; content: string }[];
+};
+
 export class DeliveryError extends Error {
   constructor(
     readonly code: string,
@@ -11,7 +15,7 @@ export class DeliveryError extends Error {
 }
 
 export async function sendResendEmail(
-  message: ResendMessage,
+  message: ResendEnvelope,
   config: EmailConfig,
   idempotencyKey: string,
 ): Promise<string> {

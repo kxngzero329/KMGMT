@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { LockKeyhole } from "lucide-react";
 import { BookingStepHeading } from "./BookingStep";
 import { StepNav } from "./Stepper";
 import { createBookingHold } from "@/features/bookings/bookings.functions";
 import { createPayfastPayment } from "@/features/payments/client";
+import { createEftBooking } from "@/features/payments/eft-client";
+import {
+  paymentMethodLabel,
+  PAYFAST_AVAILABLE,
+  PAYFAST_NOTICE,
+  type PaymentMethod,
+} from "@/lib/payment-methods";
 import { submitPayfastForm } from "@/features/payments/redirect";
 import { formatDate, formatTime, formatZAR } from "@/lib/utils/format";
 import type { PublicService } from "@/features/public/queries";
@@ -21,6 +28,7 @@ export function ReviewStep({
   format,
   client,
   slot,
+  paymentMethod,
   onEdit,
   onSlotTaken,
   onBusyChange,
@@ -29,17 +37,20 @@ export function ReviewStep({
   format: ConsultationFormat;
   client: ClientDetails;
   slot: string;
+  paymentMethod: PaymentMethod;
   onEdit: (step: number) => void;
   onSlotTaken: () => void;
   onBusyChange: (busy: boolean) => void;
 }) {
   const hold = useServerFn(createBookingHold);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heldFor, setHeldFor] = useState<{ key: string; bookingId: string } | null>(null);
   const submitting = useRef(false);
   const returnTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdKey = `${service.id}|${format}|${slot}|${client.email}`;
+  const eftRequest = useRef<{ key: string; id: string } | null>(null);
   useEffect(
     () => () => {
       if (returnTimer.current) clearTimeout(returnTimer.current);
@@ -54,6 +65,30 @@ export function ReviewStep({
     onBusyChange(true);
     setError(null);
     try {
+      if (paymentMethod === "eft") {
+        const requestKey = JSON.stringify({ serviceId: service.id, startTime: slot, client });
+        if (eftRequest.current?.key !== requestKey) {
+          eftRequest.current = { key: requestKey, id: crypto.randomUUID() };
+        }
+        const result = await createEftBooking({
+          serviceId: service.id,
+          startTime: slot,
+          client,
+          requestId: eftRequest.current.id,
+        });
+        if (!result.ok) {
+          setError(result.error);
+          if (result.error.includes("just taken"))
+            returnTimer.current = setTimeout(onSlotTaken, 1800);
+          return;
+        }
+        await navigate({ to: "/booking/success", search: { booking: result.bookingId } });
+        return;
+      }
+      if (!PAYFAST_AVAILABLE) {
+        setError(PAYFAST_NOTICE);
+        return;
+      }
       let bookingId = heldFor?.key === holdKey ? heldFor.bookingId : null;
       if (!bookingId) {
         const result = await hold({
@@ -94,6 +129,7 @@ export function ReviewStep({
     ["Duration", `${service.duration_minutes} minutes`, 0],
     ["Date", formatDate(slot), 2],
     ["Time", `${formatTime(slot)} (SAST)`, 3],
+    ["Payment method", paymentMethodLabel(paymentMethod), 4],
   ];
   const clientRows: [string, string, number][] = [
     ["Name", client.full_name, 1],
@@ -106,8 +142,8 @@ export function ReviewStep({
 
   return (
     <div>
-      <BookingStepHeading step={4} title="Your next move, ready to review">
-        Check your consultation and details before continuing to secure payment.
+      <BookingStepHeading step={5} title="Your next move, ready to review">
+        Check your consultation, details and payment method before confirming.
       </BookingStepHeading>
       {[
         { title: "Your session", rows: sessionRows },
@@ -158,8 +194,9 @@ export function ReviewStep({
           aria-hidden
         />
         <p className="text-xs leading-6 text-muted-foreground">
-          Your selected time is temporarily reserved when you continue to PayFast. Your booking is
-          confirmed once payment is received.
+          {paymentMethod === "eft"
+            ? "Confirm to reserve this slot and receive your booking confirmation and PDF invoice by email, with the bank details and payment reference. Pay by EFT and attach proof of payment via WhatsApp or email before your consultation. Payment remains pending until Kieraan verifies the funds."
+            : "Your selected time is temporarily reserved when you continue to PayFast. Your booking is confirmed once payment is received."}
         </p>
       </div>
       <p className="mt-5 text-xs leading-6 text-muted-foreground">
@@ -194,10 +231,10 @@ export function ReviewStep({
         </p>
       )}
       <StepNav
-        onBack={() => onEdit(3)}
+        onBack={() => onEdit(4)}
         onNext={proceed}
         loading={loading}
-        nextLabel="Pay securely"
+        nextLabel={paymentMethod === "eft" ? "Confirm booking" : "Pay securely"}
         secure
       />
     </div>

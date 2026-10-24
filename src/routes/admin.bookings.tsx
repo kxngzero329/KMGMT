@@ -20,6 +20,7 @@ import {
 import { formatDateTime, formatZAR, toZonedDateKey } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { consultationFormatLabel } from "@/lib/consultations";
+import { paymentMethodLabel } from "@/lib/payment-methods";
 
 export const Route = createFileRoute("/admin/bookings")({ component: Bookings });
 
@@ -153,6 +154,9 @@ function Bookings() {
                 </td>
                 <td className="p-3">
                   <PaymentBadge status={latestPayment(b)?.status} />
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {paymentMethodLabel(latestPayment(b)?.provider)}
+                  </span>
                 </td>
               </tr>
             ))}

@@ -63,13 +63,13 @@ const STEPS = [
   { title: "Tell us your story", text: "Share your level, your situation and your goals." },
   { title: "Find your time", text: "Choose from available dates and times." },
   {
-    title: "Complete secure payment",
-    text: "Pay through PayFast while your slot is held.",
+    title: "Choose your payment method",
+    text: "Choose EFT to receive an invoice. PayFast is awaiting verification.",
     icon: LockKeyhole,
   },
   {
     title: "Receive confirmation",
-    text: "View your booking reference and details once payment is verified.",
+    text: "Reserve your slot, receive your invoice by email, then pay and send proof.",
     icon: CheckCircle2,
   },
   { title: "Plan your next move", text: "Meet with Kieraan for honest, practical guidance." },
@@ -127,7 +127,7 @@ const FAQS = [
   },
   {
     q: "How does payment work?",
-    a: "Payment is handled securely by PayFast. Your booking is confirmed only once the payment has been verified.",
+    a: "Choose EFT when booking to reserve your slot and receive a confirmation and PDF invoice by email, with bank details and a payment reference. Pay and send proof via WhatsApp or email before your consultation. Kieraan verifies funds manually. Online PayFast payments are temporarily disabled while merchant verification is completed.",
   },
 ];
 
@@ -195,7 +195,7 @@ function Home() {
             </div>
             <p className="hero-enter hero-actions mt-5 flex items-center gap-2 text-xs text-ink-foreground/60">
               <LockKeyhole className="h-3 w-3 text-gold" aria-hidden />
-              Secure online booking through PayFast
+              Online booking with an EFT invoice by email
             </p>
           </div>
         </div>

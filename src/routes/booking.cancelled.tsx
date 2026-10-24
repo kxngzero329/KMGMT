@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { createPayfastPayment } from "@/features/payments/client";
 import { submitPayfastForm } from "@/features/payments/redirect";
+import { PAYFAST_AVAILABLE, PAYFAST_NOTICE } from "@/lib/payment-methods";
 
 export const Route = createFileRoute("/booking/cancelled")({
   validateSearch: z.object({ booking: z.string().uuid().optional() }),
@@ -25,7 +26,7 @@ function Cancelled() {
   const [error, setError] = useState<string | null>(null);
 
   async function retry() {
-    if (!booking) return;
+    if (!booking || !PAYFAST_AVAILABLE) return;
     setLoading(true);
     setError(null);
     try {
@@ -46,6 +47,11 @@ function Cancelled() {
         No problem, you haven't been charged. Your chosen time is held for a short while (up to 15
         minutes from when you started payment) if you'd like to try again.
       </p>
+      {!PAYFAST_AVAILABLE && (
+        <p className="mt-4 rounded-md border border-gold/30 bg-secondary p-4 text-sm leading-7">
+          {PAYFAST_NOTICE}
+        </p>
+      )}
       {error && (
         <p role="alert" className="mt-4 text-sm text-destructive">
           {error}{" "}
@@ -58,8 +64,13 @@ function Cancelled() {
       )}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {booking && (
-          <Button size="lg" onClick={retry} disabled={loading}>
+          <Button size="lg" onClick={retry} disabled={loading || !PAYFAST_AVAILABLE}>
             {loading ? "Please wait…" : "Try Payment Again"}
+          </Button>
+        )}
+        {!PAYFAST_AVAILABLE && (
+          <Button asChild size="lg">
+            <Link to="/book">Book with EFT</Link>
           </Button>
         )}
         <Button asChild size="lg" variant="outline">

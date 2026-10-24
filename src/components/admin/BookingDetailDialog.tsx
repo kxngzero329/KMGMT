@@ -7,6 +7,8 @@ import { formatDate, formatTime, formatZAR, formatDateTime } from "@/lib/utils/f
 import { latestPayment, type AdminBooking } from "@/features/admin/queries";
 import { BookingBadge, PaymentBadge } from "./AdminUI";
 import { consultationFormatLabel, consultationDelivery } from "@/lib/consultations";
+import { paymentMethodLabel } from "@/lib/payment-methods";
+import { VerifyEftPaymentButton } from "./VerifyEftPaymentButton";
 
 export function BookingDetailDialog({
   booking,
@@ -77,11 +79,24 @@ export function BookingDetailDialog({
             ["Notes", booking.notes],
           ])}
           {section("Payment", [
+            ["Method", paymentMethodLabel(p?.provider)],
+            ["Invoice", p?.invoice_number],
             ["Status", <PaymentBadge status={p?.status} />],
             ["Amount", formatZAR(p?.amount_cents)],
-            ["PayFast ref", p?.provider_payment_id],
+            ["Payment reference", p?.provider_payment_id],
             ["Paid at", p?.paid_at ? formatDateTime(p.paid_at) : null],
           ])}
+          {p?.provider === "eft" &&
+            p.status === "pending" &&
+            (booking.status === "confirmed" || booking.status === "completed") && (
+              <div className="space-y-3">
+                <p className="text-xs leading-6 text-muted-foreground">
+                  Verify the full amount in the bank account before marking this invoice paid. Proof
+                  of payment does not automatically verify funds.
+                </p>
+                <VerifyEftPaymentButton paymentId={p.id} onVerified={onClose} />
+              </div>
+            )}
           {c &&
             section("Client", [
               ["Name", c.full_name],

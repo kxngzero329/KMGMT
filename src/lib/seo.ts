@@ -45,7 +45,7 @@ const pages = {
   "/book": {
     title: "Book an Online Football Career Consultation | KMGMT",
     description:
-      "Book an online football career consultation with Kieraan. Choose your session, share your details, select an available time and pay securely through PayFast.",
+      "Book an online football career consultation with Kieraan. Choose your session, share your details, select an available time and receive an EFT invoice by email.",
     name: "Book a consultation",
   },
   "/privacy": {

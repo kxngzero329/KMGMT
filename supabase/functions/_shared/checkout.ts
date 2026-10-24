@@ -7,6 +7,12 @@ export async function preparePayfastPayment(
   origin: string,
   deps: PaymentDependencies,
 ) {
+  if (deps.env("PAYFAST_CHECKOUT_ENABLED") === "false")
+    return {
+      ok: false as const,
+      error:
+        "PayFast is temporarily unavailable while merchant verification is pending. Please choose EFT to book your consultation.",
+    };
   const cfg = getPayfastConfig(deps.env);
   if (!cfg.configured)
     return {
@@ -50,6 +56,7 @@ export async function preparePayfastPayment(
       .from("payments")
       .update({ amount_cents: service.price_cents, status: "pending" })
       .eq("booking_id", booking.id)
+      .eq("provider", "payfast")
       .in("status", ["pending", "cancelled", "failed"])
       .select("id")
       .maybeSingle();

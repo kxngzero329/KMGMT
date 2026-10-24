@@ -54,7 +54,7 @@ const EXPECTATIONS = [
 const FAQS = [
   {
     q: "Are consultations online?",
-    a: "Yes. Consultations are online only unless Kieraan personally arranges otherwise with you through WhatsApp. You must still book and pay through this website as usual.",
+    a: "Yes. Consultations are online only unless Kieraan personally arranges otherwise with you through WhatsApp. You must still book through this website and pay using your selected payment method.",
   },
   {
     q: "Which consultation is right for me?",
@@ -70,7 +70,7 @@ const FAQS = [
   },
   {
     q: "How do booking and payment work?",
-    a: "Choose your online consultation, share your details and select an available date and time. Your slot is held temporarily while you pay through PayFast. Once payment is verified, your booking is confirmed and Kieraan arranges the video call with you through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; the website booking and payment are still required.",
+    a: "Choose your online consultation, share your details, select an available date and time, then choose a payment method. EFT reserves your slot and emails a confirmation and PDF invoice with bank details. Pay and attach proof via WhatsApp or email before the consultation; Kieraan verifies the funds manually. PayFast is temporarily disabled pending merchant verification. Kieraan arranges the video call through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; website booking and payment are still required.",
   },
   {
     q: "Can I cancel, reschedule or request a refund?",

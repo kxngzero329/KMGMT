@@ -62,7 +62,7 @@ export function BookingAssurances({ dark = false }: { dark?: boolean }) {
       aria-label="Booking reassurance"
     >
       {[
-        { icon: LockKeyhole, text: "Secure PayFast payment" },
+        { icon: LockKeyhole, text: "EFT invoice by email" },
         { icon: CheckCircle2, text: "Clear booking confirmation" },
         { icon: CalendarDays, text: "Choose an available time" },
       ].map(({ icon: Icon, text }) => (

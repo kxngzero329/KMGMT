@@ -14,3 +14,13 @@ import_map = "./functions/deno.json"
 # Private worker: handler requires EMAIL_WORKER_TOKEN, never a browser/public key.
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.create-eft-booking]
+# Validates the project key, origin and booking details; private RPC sets prices.
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+[functions.process-eft-emails]
+# Private invoice worker: requires EMAIL_WORKER_TOKEN, not a browser key.
+verify_jwt = false
+import_map = "./functions/deno.json"

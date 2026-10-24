@@ -10,6 +10,8 @@ import { emptyDetails, type DetailsDraft } from "@/components/booking/details-dr
 import { ServiceStep } from "@/components/booking/ServiceStep";
 import { DateStep, TimeStep } from "@/components/booking/DateTimeSteps";
 import { ReviewStep } from "@/components/booking/ReviewStep";
+import { PaymentMethodStep } from "@/components/booking/PaymentMethodStep";
+import type { PaymentMethod } from "@/lib/payment-methods";
 import { BookingSummary, MobileBookingSummary } from "@/components/booking/BookingSummary";
 import { BookingAssurances, PitchLines } from "@/components/home/HomeDetails";
 import { servicesQuery, type PublicService } from "@/features/public/queries";
@@ -32,6 +34,7 @@ function BookPage() {
   const [client, setClient] = useState<ClientDetails | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [busy, setBusy] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const previousStep = useRef(0);
@@ -83,11 +86,11 @@ function BookPage() {
             <p className="text-sm leading-7 text-ink-foreground/70">
               Book an online consultation with Kieraan. Share your background and find a time that
               works for you. Any alternative arrangement must be personally confirmed by Kieraan
-              through WhatsApp; book and pay here as usual.
+              through WhatsApp; book here and pay using your selected payment method.
             </p>
             <p className="mt-4 flex items-center gap-2 text-[11px] text-ink-foreground/60">
               <LockKeyhole className="h-3.5 w-3.5 text-gold" strokeWidth={1.3} aria-hidden />
-              Five clear steps. Secure PayFast payment.
+              Six clear steps. EFT invoice sent by email.
             </p>
           </div>
         </div>
@@ -95,7 +98,13 @@ function BookPage() {
       <section className="bg-secondary py-9 md:py-12" aria-label="Build your consultation booking">
         <div ref={workspaceRef} id="booking-workspace" className="container-page scroll-mt-20">
           <Stepper current={step} {...(!busy ? { onEdit: go } : {})} />
-          <MobileBookingSummary service={service} format={format} date={date} slot={slot} />
+          <MobileBookingSummary
+            service={service}
+            format={format}
+            date={date}
+            slot={slot}
+            paymentMethod={paymentMethod}
+          />
           <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_0.85fr] lg:gap-10">
             <div
               id="booking-step"
@@ -163,12 +172,21 @@ function BookPage() {
                   onNext={() => slot && go(4)}
                 />
               )}
-              {step === 4 && service && format && client && slot && (
+              {step === 4 && (
+                <PaymentMethodStep
+                  selected={paymentMethod}
+                  onSelect={setPaymentMethod}
+                  onBack={() => go(3)}
+                  onNext={() => paymentMethod && go(5)}
+                />
+              )}
+              {step === 5 && service && format && client && slot && paymentMethod && (
                 <ReviewStep
                   service={service}
                   format={format}
                   client={client}
                   slot={slot}
+                  paymentMethod={paymentMethod}
                   onEdit={go}
                   onSlotTaken={() => {
                     setSlot(null);
@@ -178,7 +196,13 @@ function BookPage() {
                 />
               )}
             </div>
-            <BookingSummary service={service} format={format} date={date} slot={slot} />
+            <BookingSummary
+              service={service}
+              format={format}
+              date={date}
+              slot={slot}
+              paymentMethod={paymentMethod}
+            />
           </div>
           <div className="mt-9 border-t border-gold/20 pt-7">
             <BookingAssurances />

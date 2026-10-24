@@ -13,7 +13,7 @@ function Terms() {
     <>
       <PageHeader eyebrow="Legal" title="Terms & Conditions" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 17 October 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 24 October 2026</p>
         <p>
           These terms apply to kmgmt.co.za and to football consultations, career guidance and player
           advisory services booked through KMGMT. They include our refund, cancellation,
@@ -63,28 +63,34 @@ function Terms() {
         </h2>
         <p>
           Choose your online consultation, enter your details, select an available date and time,
-          and review the total before continuing to PayFast. Prices are displayed in South African
-          rand (ZAR). The session duration and price are shown for your selected service. All
-          appointments must be booked and paid for through this website, including any alternative
-          arrangement personally confirmed by Kieraan through WhatsApp.
+          choose a payment method and review the total before confirming. Prices are displayed in
+          South African rand (ZAR). The session duration and price are shown for your selected
+          service. All appointments must be booked through this website and paid using the selected
+          method, including any alternative arrangement personally confirmed by Kieraan through
+          WhatsApp.
         </p>
         <p>
-          Your selected time is held temporarily while you complete payment. An unpaid reservation
-          can expire and the time can become available to other clients. A booking is confirmed only
-          after PayFast payment has been verified by KMGMT. Returning to the success page alone does
-          not confirm payment.
+          EFT / bank transfer is currently available. Confirming an EFT booking reserves your slot
+          and sends a booking confirmation and PDF invoice by email, including bank details, the
+          amount due and your booking reference to use as the payment reference. The reservation
+          does not mean that payment has been received. Pay on receipt of the invoice and before
+          your consultation; contact KMGMT promptly if you cannot do so.
         </p>
         <p>
-          After successful payment and booking confirmation, the client receives an email with the
-          booking reference, meeting format, date, time, consultation details and payment receipt.
-          KMGMT also receives the booking and payment details. Check your email, spam folder and
-          booking status, and contact us with your reference if you paid but have not received
-          confirmation. Please do not pay again before contacting us if you believe you were
-          charged.
+          For EFT, attach proof of payment to a WhatsApp message or email using the buttons in your
+          invoice email or booking status page. Include your booking reference. Payment remains
+          pending until Kieraan verifies the funds in his bank account; sending proof alone does not
+          mark the invoice paid. KMGMT receives the booking, selected payment method and invoice
+          details. Check your inbox, spam folder and contact details. If your invoice does not
+          arrive or you are unsure about a payment, contact KMGMT before paying again.
         </p>
         <p>
-          PayFast handles payment processing. Do not send card details, banking passwords, PINs or
-          one-time passwords to KMGMT.
+          Online PayFast payments are displayed but temporarily disabled while merchant verification
+          is completed. When available, a PayFast checkout reserves the slot temporarily; an unpaid
+          hold can expire. PayFast bookings are confirmed and confirmation and receipt emails are
+          sent only after payment verification. Returning to the website alone does not confirm a
+          PayFast payment. Do not send card details, banking passwords, PINs or one-time passwords
+          to KMGMT.
         </p>
 
         <h2 id="service-delivery" className="scroll-mt-24">

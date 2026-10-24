@@ -72,6 +72,8 @@ export interface PublicBookingSummary {
   client_name: string;
   amount_cents: number | null;
   payment_status: PaymentStatus | null;
+  payment_provider: string | null;
+  invoice_number: string | null;
 }
 
 export const WEEKDAYS = [
