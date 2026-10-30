@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RepresentedPlayer } from "@/types/domain";
+import { playerPhotoPath, PHOTO_BROWSER_CACHE_SECONDS } from "@/features/players/photos";
+import { PlayerPhoto } from "@/components/players/PlayerPhoto";
 
 export const Route = createFileRoute("/admin/players")({ component: Players });
 
@@ -33,7 +35,7 @@ function Players() {
     mutationFn: async (p: RepresentedPlayer) => {
       const row = {
         name: p.name, position: p.position || null, age: p.age || null, current_club: p.current_club || null,
-        previous_clubs: p.previous_clubs || null, nationality: p.nationality || null, image_url: p.image_url,
+        previous_clubs: p.previous_clubs || null, nationality: p.nationality || null, image_url: playerPhotoPath(p.image_url) ?? p.image_url,
         active: p.active, visible: p.visible, display_order: p.display_order,
       };
       const { error } = p.id
@@ -41,7 +43,7 @@ function Players() {
         : await supabase.from("represented_players").insert(row);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Player saved"); setEdit(null); qc.invalidateQueries({ queryKey: ["admin", "players"] }); },
+    onSuccess: () => { toast.success("Player saved"); setEdit(null); qc.invalidateQueries({ queryKey: ["admin", "players"] }); qc.invalidateQueries({ queryKey: ["public", "players"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
   const remove = useMutation({
@@ -49,7 +51,7 @@ function Players() {
       const { error } = await supabase.from("represented_players").update({ active: false, visible: false }).eq("id", p.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Player archived"); qc.invalidateQueries({ queryKey: ["admin", "players"] }); },
+    onSuccess: () => { toast.success("Player archived"); qc.invalidateQueries({ queryKey: ["admin", "players"] }); qc.invalidateQueries({ queryKey: ["public", "players"] }); },
   });
 
   return (
@@ -62,7 +64,7 @@ function Players() {
         {(q.data ?? []).map((p) => (
           <Panel key={p.id} className="overflow-hidden">
             <div className="aspect-video bg-muted">
-              {p.image_url && <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />}
+              <PlayerPhoto source={p.image_url} alt={p.name} className="h-full w-full object-cover" />
             </div>
             <div className="p-4">
               <p className="font-bold">{p.name} <span className="text-xs font-normal text-muted-foreground">#{p.display_order}</span></p>
@@ -100,10 +102,9 @@ function PlayerDialog({ player, onClose, onSave, saving }: {
     setUploading(true);
     try {
       const path = `${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
-      const { error } = await supabase.storage.from("player-photos").upload(path, file, { upsert: true });
+      const { error } = await supabase.storage.from("player-photos").upload(path, file, { cacheControl: String(PHOTO_BROWSER_CACHE_SECONDS), upsert: false });
       if (error) throw error;
-      const { data } = await supabase.storage.from("player-photos").createSignedUrl(path, 60 * 60 * 24 * 7);
-      set("image_url", data?.signedUrl ?? path);
+      set("image_url", path);
     } catch (e) {
       toast.error((e as Error).message || "Upload failed");
     } finally {
@@ -131,10 +132,10 @@ function PlayerDialog({ player, onClose, onSave, saving }: {
           {f("nationality", "Nationality")}
           <label className="block text-sm font-semibold">Photo
             <div className="mt-1 flex items-center gap-3">
-              {v.image_url && <img src={v.image_url} alt="" className="h-16 w-16 rounded object-cover" />}
+              <PlayerPhoto source={v.image_url} alt="" className="h-16 w-16 rounded object-cover" />
               <label className="flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm hover:border-gold">
                 <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : "Upload photo"}
-                <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+                <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
               </label>
             </div>
           </label>
@@ -145,7 +146,7 @@ function PlayerDialog({ player, onClose, onSave, saving }: {
               <input aria-label="Display order" type="number" className={`${inputCls} w-20`} value={v.display_order} onChange={(e) => set("display_order", +e.target.value)} />
             </label>
           </div>
-          <Button className="mt-2" disabled={saving || !v.name} onClick={() => onSave(v)}>Save</Button>
+          <Button className="mt-2" disabled={saving || uploading || !v.name} onClick={() => onSave(v)}>Save</Button>
         </div>
       </DialogContent>
     </Dialog>

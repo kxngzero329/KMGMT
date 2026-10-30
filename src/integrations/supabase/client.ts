@@ -8,6 +8,7 @@ const { url: SUPABASE_URL, key: publicKey } = getPublicSupabaseConfig(
   import.meta.env["VITE_SUPABASE_URL"],
   import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
 );
+export { SUPABASE_URL };
 export const SUPABASE_PUBLISHABLE_KEY = publicKey;
 
 // Import the supabase client like this:

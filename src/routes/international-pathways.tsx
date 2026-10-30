@@ -45,7 +45,10 @@ const PREPARATION_ICONS = [FileText, Video, Target, Compass] as const;
 
 function Pathways() {
   const initial = Route.useLoaderData();
-  const query = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
+  const query = useQuery({
+    ...servicesQuery,
+    ...(initial.services ? { initialData: initial.services } : {}),
+  });
   const service = query.data?.find((item) => item.slug === "international-career-consultation");
 
   return (

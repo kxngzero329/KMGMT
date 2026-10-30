@@ -133,11 +133,17 @@ const FAQS = [
 
 function Home() {
   const initial = Route.useLoaderData();
-  const services = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
-  const players = useQuery({ ...playersQuery(), initialData: initial.players ?? undefined });
+  const services = useQuery({
+    ...servicesQuery,
+    ...(initial.services ? { initialData: initial.services } : {}),
+  });
+  const players = useQuery({
+    ...playersQuery(),
+    ...(initial.players ? { initialData: initial.players } : {}),
+  });
   const testimonials = useQuery({
     ...testimonialsQuery,
-    initialData: initial.testimonials ?? undefined,
+    ...(initial.testimonials ? { initialData: initial.testimonials } : {}),
   });
   const credentials = [
     ["Qualifications", consultant.qualifications],

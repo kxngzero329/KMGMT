@@ -27,7 +27,10 @@ const APPROACH_ICONS = [Users, ShieldCheck, Compass] as const;
 
 function Players() {
   const initial = Route.useLoaderData();
-  const query = useQuery({ ...playersQuery(), initialData: initial.players ?? undefined });
+  const query = useQuery({
+    ...playersQuery(),
+    ...(initial.players ? { initialData: initial.players } : {}),
+  });
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("");
   const players = query.data ?? [];

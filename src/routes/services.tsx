@@ -80,7 +80,10 @@ const FAQS = [
 
 function ServicesPage() {
   const initial = Route.useLoaderData();
-  const query = useQuery({ ...servicesQuery, initialData: initial.services ?? undefined });
+  const query = useQuery({
+    ...servicesQuery,
+    ...(initial.services ? { initialData: initial.services } : {}),
+  });
   const services = query.data ?? [];
   const featured = services.find((service) => service.slug === "general-football-consultation");
   const otherServices = services.filter((service) => service.id !== featured?.id);

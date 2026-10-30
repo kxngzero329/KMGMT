@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowUpRight, Shirt, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PitchLines } from "@/components/common/PitchLines";
 import type { RepresentedPlayer } from "@/types/domain";
+import { playerPhotoPath, refreshPlayerPhoto } from "@/features/players/photos";
 
 export function PlayerProfileCard({
   player,
@@ -13,6 +15,8 @@ export function PlayerProfileCard({
   number: number;
 }) {
   const [failedImage, setFailedImage] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const retriedPath = useRef<string | null>(null);
   const hasPhoto = !!player.image_url && player.image_url !== failedImage;
   const initials = player.name
     .trim()
@@ -38,7 +42,16 @@ export function PlayerProfileCard({
         width={600}
         height={750}
         className={`h-full w-full object-cover ${dialog ? "" : "roster-photo"}`}
-        onError={() => setFailedImage(player.image_url)}
+        onLoad={() => {
+          retriedPath.current = null;
+        }}
+        onError={() => {
+          setFailedImage(player.image_url);
+          const path = playerPhotoPath(player.image_url);
+          if (!player.image_url || !path || retriedPath.current === path) return;
+          retriedPath.current = path;
+          void refreshPlayerPhoto(queryClient, player.image_url);
+        }}
       />
     ) : (
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-ink">

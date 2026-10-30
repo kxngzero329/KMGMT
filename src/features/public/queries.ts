@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { PublicBookingSummary, RepresentedPlayer } from "@/types/domain";
+import type { PublicBookingSummary } from "@/types/domain";
+import { withPlayerPhotos, PHOTO_REFRESH_INTERVAL_MS } from "@/features/players/photos";
 
 export const servicesQuery = queryOptions({
   queryKey: ["public", "services"],
@@ -20,25 +21,10 @@ export const servicesQuery = queryOptions({
 
 export type PublicService = Awaited<ReturnType<NonNullable<typeof servicesQuery.queryFn>>>[number];
 
-async function withSignedPhotos(players: RepresentedPlayer[]) {
-  const paths = players
-    .map((p) => p.image_url)
-    .filter((p): p is string => !!p && !p.startsWith("http"));
-  if (!paths.length) return players;
-  const { data } = await supabase.storage
-    .from("player-photos")
-    .createSignedUrls(paths, 60 * 60 * 6);
-  const map = new Map((data ?? []).map((d) => [d.path, d.signedUrl]));
-  return players.map((p) => ({
-    ...p,
-    image_url: p.image_url ? (map.get(p.image_url) ?? p.image_url) : null,
-  }));
-}
-
 export const playersQuery = (limit?: number) =>
   queryOptions({
     queryKey: ["public", "players", limit ?? "all"],
-    queryFn: async () => {
+    queryFn: async ({ client }) => {
       let q = supabase
         .from("represented_players")
         .select("*")
@@ -48,9 +34,13 @@ export const playersQuery = (limit?: number) =>
       if (limit) q = q.limit(limit);
       const { data, error } = await q;
       if (error) throw error;
-      return withSignedPhotos(data);
+      return withPlayerPhotos(data, client);
     },
     staleTime: 60_000,
+    refetchInterval: PHOTO_REFRESH_INTERVAL_MS,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
 
 export const testimonialsQuery = queryOptions({
