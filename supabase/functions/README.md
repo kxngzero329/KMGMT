@@ -31,8 +31,8 @@ enquiry's read/responded/archived status does not send another notification.
 ## EFT bookings and invoices
 
 The website has six steps: consultation, client details, date, time, payment
-method and review. EFT is available; PayFast is visible but disabled while
-merchant verification is pending. New bookings are still online consultations.
+method and review. Both EFT and live PayFast payments are available following
+merchant activation. New bookings are still online consultations.
 
 `create-eft-booking` validates the project key, allowed website origin and client
 details, then calls the service-only `create_eft_booking` RPC. The SQL booking
@@ -90,7 +90,7 @@ Additional Supabase Edge secrets (never put these in Netlify or `VITE_*`):
 | `EFT_ACCOUNT_NUMBER`       | Account number for private email invoices                    |
 | `EFT_ACCOUNT_TYPE`         | Account type for private email invoices                      |
 | `EFT_PROOF_EMAIL`          | Public email address that receives clients' proof of payment |
-| `PAYFAST_CHECKOUT_ENABLED` | Set to `false` while merchant verification is pending        |
+| `PAYFAST_CHECKOUT_ENABLED` | Set to `true` to enable live checkout; `false` disables it   |
 
 EFT also uses the existing email sender, admin recipient, Resend key, site URL,
 WhatsApp number and `EMAIL_WORKER_TOKEN`. The same worker token is read from Vault
@@ -100,9 +100,12 @@ secret and Vault entry together.
 Deploy the migration, regenerate database types and deploy `create-eft-booking`,
 `process-eft-emails` and `create-payfast-payment`. Redeploy the frontend on Netlify
 to publish the new booking step. No new Netlify secrets or npm dependencies are
-required. To restore PayFast after verification, update `PAYFAST_AVAILABLE` and
-the availability copy in the frontend, set `PAYFAST_CHECKOUT_ENABLED=true` in
-Supabase, and redeploy. Preserve the existing payment verification and email flow.
+required. PayFast is enabled with `PAYFAST_AVAILABLE=true` in the frontend,
+`PAYFAST_CHECKOUT_ENABLED=true` and `PAYFAST_MODE=live` in Supabase. Merchant
+credentials remain in Supabase secrets. To suspend checkout, disable both the
+frontend flag and the Edge secret. Preserve the existing payment verification
+and email flow. Activation was configured without running a payment or sending
+sample emails; the active R5 Test Consultation is available for the owner's check.
 
 ## PayFast flow
 

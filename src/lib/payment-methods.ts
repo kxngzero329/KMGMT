@@ -1,9 +1,9 @@
 import { contactDetails } from "@/content/site";
 
 export type PaymentMethod = "eft" | "payfast";
-export const PAYFAST_AVAILABLE = false;
+export const PAYFAST_AVAILABLE = true;
 export const PAYFAST_NOTICE =
-  "Online PayFast payments are temporarily unavailable while merchant verification is being completed. Please choose EFT to book.";
+  "Online PayFast payments are temporarily unavailable. Please choose EFT to book.";
 
 export function paymentMethodLabel(method: string | null | undefined) {
   return method === "eft"

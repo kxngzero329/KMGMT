@@ -141,7 +141,11 @@ export function BookingSummary(props: SummaryProps) {
               {formatZAR(props.service.price_cents)}
             </p>
             <p className="mt-2 text-[11px] text-ink-foreground/55">
-              Consultation total · EFT invoice by email
+              {props.paymentMethod === "payfast"
+                ? "Consultation total · Secure PayFast checkout"
+                : props.paymentMethod === "eft"
+                  ? "Consultation total · EFT invoice by email"
+                  : "Consultation total · PayFast or EFT"}
             </p>
             <div className="mt-7 border-t border-gold/20 pt-6">
               <SummaryDetails {...props} dark />
@@ -162,8 +166,11 @@ export function BookingSummary(props: SummaryProps) {
         )}
         <p className="mt-7 flex items-start gap-2.5 border-t border-gold/20 pt-5 text-[11px] leading-6 text-ink-foreground/60">
           <LockKeyhole className="mt-1 h-3.5 w-3.5 shrink-0 text-gold" aria-hidden />
-          EFT bookings receive an invoice by email. Payment remains pending until funds are verified
-          manually. PayFast is temporarily unavailable during verification.
+          {props.paymentMethod === "payfast"
+            ? "Pay securely through PayFast. Your booking is confirmed and emailed after payment verification."
+            : props.paymentMethod === "eft"
+              ? "EFT bookings receive an invoice by email. Payment remains pending until funds are verified manually."
+              : "Choose secure online payment through PayFast or an EFT invoice by email."}
         </p>
       </div>
       <div className="rounded-md border border-gold/25 bg-background p-6">

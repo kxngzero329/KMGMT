@@ -90,7 +90,7 @@ function BookPage() {
             </p>
             <p className="mt-4 flex items-center gap-2 text-[11px] text-ink-foreground/60">
               <LockKeyhole className="h-3.5 w-3.5 text-gold" strokeWidth={1.3} aria-hidden />
-              Six clear steps. EFT invoice sent by email.
+              Six clear steps. Pay online with PayFast or choose EFT.
             </p>
           </div>
         </div>

@@ -70,7 +70,7 @@ const FAQS = [
   },
   {
     q: "How do booking and payment work?",
-    a: "Choose your online consultation, share your details, select an available date and time, then choose a payment method. EFT reserves your slot and emails a confirmation and PDF invoice with bank details. Pay and attach proof via WhatsApp or email before the consultation; Kieraan verifies the funds manually. PayFast is temporarily disabled pending merchant verification. Kieraan arranges the video call through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; website booking and payment are still required.",
+    a: "Choose your online consultation, share your details, select an available date and time, then choose a payment method. PayFast lets you pay securely online; confirmation and receipt emails follow payment verification. EFT reserves your slot and emails a confirmation and PDF invoice with bank details. For EFT, pay and attach proof via WhatsApp or email before the consultation; Kieraan verifies the funds manually. Kieraan arranges the video call through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; website booking and payment are still required.",
   },
   {
     q: "Can I cancel, reschedule or request a refund?",

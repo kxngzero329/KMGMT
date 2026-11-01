@@ -13,7 +13,7 @@ function Terms() {
     <>
       <PageHeader eyebrow="Legal" title="Terms & Conditions" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 24 October 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 1 November 2026</p>
         <p>
           These terms apply to kmgmt.co.za and to football consultations, career guidance and player
           advisory services booked through KMGMT. They include our refund, cancellation,
@@ -85,12 +85,11 @@ function Terms() {
           arrive or you are unsure about a payment, contact KMGMT before paying again.
         </p>
         <p>
-          Online PayFast payments are displayed but temporarily disabled while merchant verification
-          is completed. When available, a PayFast checkout reserves the slot temporarily; an unpaid
-          hold can expire. PayFast bookings are confirmed and confirmation and receipt emails are
-          sent only after payment verification. Returning to the website alone does not confirm a
-          PayFast payment. Do not send card details, banking passwords, PINs or one-time passwords
-          to KMGMT.
+          Online payments through PayFast are available. A PayFast checkout reserves the slot
+          temporarily; an unpaid hold can expire. PayFast bookings are confirmed and confirmation
+          and receipt emails are sent only after payment verification. Returning to the website
+          alone does not confirm a PayFast payment. Do not send card details, banking passwords,
+          PINs or one-time passwords to KMGMT.
         </p>
 
         <h2 id="service-delivery" className="scroll-mt-24">
