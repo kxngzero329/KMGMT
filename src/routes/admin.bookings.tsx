@@ -10,6 +10,7 @@ import {
   selectCls,
 } from "@/components/admin/AdminUI";
 import { BookingDetailDialog } from "@/components/admin/BookingDetailDialog";
+import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
 import { latestPayment, listBookings, type AdminBooking } from "@/features/admin/queries";
 import {
   BOOKING_STATUSES,
@@ -128,6 +129,7 @@ function Bookings() {
               <th className="p-3">Price</th>
               <th className="p-3">Status</th>
               <th className="p-3">Payment</th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -157,6 +159,14 @@ function Bookings() {
                   <span className="mt-1 block text-xs text-muted-foreground">
                     {paymentMethodLabel(latestPayment(b)?.provider)}
                   </span>
+                </td>
+                <td className="p-3">
+                  <DeleteRecordButton
+                    entity="booking"
+                    recordId={b.id}
+                    recordLabel={b.booking_reference}
+                    onDeleted={() => setOpen(null)}
+                  />
                 </td>
               </tr>
             ))}

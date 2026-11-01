@@ -8,6 +8,7 @@ import { formatDateTime, formatZAR } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { paymentMethodLabel } from "@/lib/payment-methods";
 import { VerifyEftPaymentButton } from "@/components/admin/VerifyEftPaymentButton";
+import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
 
 export const Route = createFileRoute("/admin/payments")({ component: Payments });
 
@@ -47,6 +48,10 @@ function Payments() {
           ))}
         </select>
       </AdminTitle>
+      <p className="mb-4 text-sm leading-6 text-muted-foreground">
+        To remove a payment, delete its booking and payment records together. This does not refund a
+        transaction. Existing invoices and receipts already emailed cannot be recalled.
+      </p>
       <Panel className="overflow-x-auto">
         {q.isLoading && <Skeleton className="m-4 h-40" />}
         <table className="w-full min-w-190 text-sm">
@@ -91,11 +96,19 @@ function Payments() {
                     {p.paid_at ? formatDateTime(p.paid_at) : ""}
                   </td>
                   <td className="p-3">
-                    {p.provider === "eft" &&
-                      p.status === "pending" &&
-                      (b?.status === "confirmed" || b?.status === "completed") && (
-                        <VerifyEftPaymentButton paymentId={p.id} />
-                      )}
+                    <div className="flex flex-col items-start gap-2">
+                      {p.provider === "eft" &&
+                        p.status === "pending" &&
+                        (b?.status === "confirmed" || b?.status === "completed") && (
+                          <VerifyEftPaymentButton paymentId={p.id} />
+                        )}
+                      <DeleteRecordButton
+                        entity="booking"
+                        recordId={p.booking_id}
+                        recordLabel={b?.booking_reference ?? p.booking_id}
+                        buttonLabel="Delete booking & payments"
+                      />
+                    </div>
                   </td>
                 </tr>
               );

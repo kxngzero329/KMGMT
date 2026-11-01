@@ -9,6 +9,7 @@ import { BookingBadge, PaymentBadge } from "./AdminUI";
 import { consultationFormatLabel, consultationDelivery } from "@/lib/consultations";
 import { paymentMethodLabel } from "@/lib/payment-methods";
 import { VerifyEftPaymentButton } from "./VerifyEftPaymentButton";
+import { DeleteRecordButton } from "./DeleteRecordButton";
 
 export function BookingDetailDialog({
   booking,
@@ -163,6 +164,20 @@ export function BookingDetailDialog({
                 </button>
               ))}
             </div>
+          </div>
+          <div className="border-t pt-4">
+            <p className="mb-3 text-xs leading-6 text-muted-foreground">
+              Permanent deletion removes this booking and its related payment and email records. Use
+              Cancelled above to keep the history instead.
+            </p>
+            <DeleteRecordButton
+              entity="booking"
+              recordId={booking.id}
+              recordLabel={booking.booking_reference}
+              disabled={m.isPending}
+              onDeleted={onClose}
+              buttonLabel="Delete booking"
+            />
           </div>
         </div>
       </DialogContent>

@@ -737,6 +737,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_record: {
+        Args: { p_entity: string; p_id: string }
+        Returns: undefined
+      }
       claim_booking_email_jobs: {
         Args: { p_limit?: number }
         Returns: {

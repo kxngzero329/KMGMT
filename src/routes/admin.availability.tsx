@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminTitle, Panel, inputCls, selectCls } from "@/components/admin/AdminUI";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { WEEKDAYS } from "@/types/domain";
 import { formatShortDate } from "@/lib/utils/format";
+import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
 
 export const Route = createFileRoute("/admin/availability")({ component: Availability });
 
@@ -21,10 +21,9 @@ function Availability() {
   const q = useQuery({
     queryKey: ["admin", "availability"],
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
       const [rules, exc, settings] = await Promise.all([
         supabase.from("availability_rules").select("*").order("start_time"),
-        supabase.from("availability_exceptions").select("*").gte("date", today).order("date"),
+        supabase.from("availability_exceptions").select("*").order("date", { ascending: false }),
         supabase.from("booking_settings").select("*").single(),
       ]);
       if (rules.error || exc.error || settings.error)
@@ -104,16 +103,12 @@ function Availability() {
                       <span className={r.active ? "" : "text-muted-foreground line-through"}>
                         {hhmm(r.start_time)}–{hhmm(r.end_time)}
                       </span>
-                      <button
-                        aria-label="Remove"
-                        onClick={() =>
-                          run.mutate(() =>
-                            supabase.from("availability_rules").delete().eq("id", r.id),
-                          )
-                        }
-                      >
-                        <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                      </button>
+                      <DeleteRecordButton
+                        entity="availability_rule"
+                        recordId={r.id}
+                        recordLabel={`${WEEKDAYS[d]} ${hhmm(r.start_time)}–${hhmm(r.end_time)} SAST`}
+                        disabled={run.isPending}
+                      />
                     </span>
                   ))}
                 </li>
@@ -221,7 +216,7 @@ function Availability() {
           </Button>
           <ul className="mt-4 divide-y border-t">
             {exceptions.length === 0 && (
-              <li className="py-3 text-sm text-muted-foreground">No upcoming date rules.</li>
+              <li className="py-3 text-sm text-muted-foreground">No date rules.</li>
             )}
             {exceptions.map((e) => (
               <li key={e.id} className="flex items-center justify-between gap-2 py-3 text-sm">
@@ -237,16 +232,12 @@ function Availability() {
                     : `Custom hours ${hhmm(e.start_time)}–${hhmm(e.end_time)}`}
                   {e.reason && <span className="text-muted-foreground"> · {e.reason}</span>}
                 </span>
-                <button
-                  aria-label="Remove"
-                  onClick={() =>
-                    run.mutate(() =>
-                      supabase.from("availability_exceptions").delete().eq("id", e.id),
-                    )
-                  }
-                >
-                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                </button>
+                <DeleteRecordButton
+                  entity="availability_exception"
+                  recordId={e.id}
+                  recordLabel={`${e.date} — ${e.reason || e.type}`}
+                  disabled={run.isPending}
+                />
               </li>
             ))}
           </ul>
