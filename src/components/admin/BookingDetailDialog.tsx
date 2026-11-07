@@ -12,6 +12,7 @@ import { paymentMethodLabel } from "@/lib/payment-methods";
 import { VerifyEftPaymentButton } from "./VerifyEftPaymentButton";
 import { DeleteRecordButton } from "./DeleteRecordButton";
 import { EftDeadline } from "./EftDeadline";
+import { ClientContactActions } from "./ClientContactActions";
 
 export function BookingDetailDialog({
   booking: selectedBooking,
@@ -97,6 +98,21 @@ export function BookingDetailDialog({
           <BookingBadge status={booking.status} />
           <PaymentBadge status={p?.status} />
         </div>
+        {c && (
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border/70 bg-secondary/50 p-4">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold">Contact {c.full_name}</p>
+              <p className="mt-1 break-all text-[11px] text-muted-foreground">{c.email}</p>
+            </div>
+            <ClientContactActions
+              name={c.full_name}
+              email={c.email}
+              whatsapp={c.whatsapp}
+              country={c.country}
+              reference={booking.booking_reference}
+            />
+          </div>
+        )}
         <div className="space-y-6">
           {section("Consultation", [
             ["Service", booking.services?.name],

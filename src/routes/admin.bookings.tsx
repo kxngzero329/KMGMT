@@ -12,6 +12,7 @@ import {
 import { BookingDetailDialog } from "@/components/admin/BookingDetailDialog";
 import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
 import { EftDeadline } from "@/components/admin/EftDeadline";
+import { ClientContactActions } from "@/components/admin/ClientContactActions";
 import { latestPayment, listBookings, type AdminBooking } from "@/features/admin/queries";
 import {
   BOOKING_STATUSES,
@@ -177,6 +178,18 @@ function Bookings() {
                   )}
                 </td>
                 <td className="p-3">
+                  {b.clients && (
+                    <div className="mb-2">
+                      <ClientContactActions
+                        name={b.clients.full_name}
+                        email={b.clients.email}
+                        whatsapp={b.clients.whatsapp}
+                        country={b.clients.country}
+                        reference={b.booking_reference}
+                        compact
+                      />
+                    </div>
+                  )}
                   <DeleteRecordButton
                     entity="booking"
                     recordId={b.id}

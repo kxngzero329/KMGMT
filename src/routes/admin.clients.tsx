@@ -8,6 +8,7 @@ import { BOOKING_SELECT } from "@/features/admin/queries";
 import { formatDateTime, formatZAR } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
+import { ClientContactActions } from "@/components/admin/ClientContactActions";
 
 export const Route = createFileRoute("/admin/clients")({ component: Clients });
 
@@ -58,6 +59,7 @@ function Clients() {
               <th className="p-3">WhatsApp</th>
               <th className="p-3">Club</th>
               <th className="p-3">Consultations</th>
+              <th className="p-3">Contact</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
@@ -79,6 +81,15 @@ function Clients() {
                 <td className="p-3 whitespace-nowrap">{c.whatsapp}</td>
                 <td className="p-3">{c.current_club ?? ""}</td>
                 <td className="p-3">{c.bookings?.length ?? 0}</td>
+                <td className="p-3">
+                  <ClientContactActions
+                    name={c.full_name}
+                    email={c.email}
+                    whatsapp={c.whatsapp}
+                    country={c.country}
+                    compact
+                  />
+                </td>
                 <td className="p-3">
                   <DeleteRecordButton
                     entity="client"
@@ -103,6 +114,12 @@ function Clients() {
                 <DialogTitle>{selected.full_name}</DialogTitle>
               </DialogHeader>
               <p className="text-sm text-muted-foreground">Consultation history</p>
+              <ClientContactActions
+                name={selected.full_name}
+                email={selected.email}
+                whatsapp={selected.whatsapp}
+                country={selected.country}
+              />
               <ul className="mt-3 divide-y rounded-md border">
                 {selected.bookings?.map((b) => (
                   <li key={b.id} className="p-4 text-sm">
