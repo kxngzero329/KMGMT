@@ -13,7 +13,7 @@ function Privacy() {
     <>
       <PageHeader eyebrow="Legal" title="Privacy Policy" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 24 October 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 7 November 2026</p>
         <h2>1. Who this policy covers</h2>
         <p>
           KMGMT provides football consultations, career guidance and player advisory services
@@ -56,11 +56,12 @@ function Privacy() {
           </li>
           <li>
             <strong>Payments:</strong> selected payment method, amount, currency, status, invoice
-            and payment references, verification records and payment notifications. EFT proof of
-            payment you choose to send by WhatsApp or email is used to reconcile your payment. Share
-            only the information needed for that purpose. PayFast processes online payment
-            credentials when available; KMGMT does not collect or store your full card number,
-            security code, banking password or one-time password.
+            and payment references, EFT payment deadlines, automatic cancellation reasons,
+            verification records and payment notifications. EFT proof of payment you choose to send
+            by WhatsApp or email is used to reconcile your payment. Share only the information
+            needed for that purpose. PayFast processes online payment credentials when available;
+            KMGMT does not collect or store your full card number, security code, banking password
+            or one-time password.
           </li>
           <li>
             <strong>Guardian details:</strong> parent or guardian name, email, phone and consent for
@@ -95,6 +96,15 @@ function Privacy() {
           subject to applicable consent and opt-out requirements.
         </p>
 
+        <p>
+          For new EFT bookings, the system assigns a payment deadline 3 calendar days (72 hours)
+          after booking, or the consultation start time if sooner. It automatically cancels a
+          reservation if payment remains unverified at the deadline and sends cancellation
+          notifications to the client and admin. Kieraan checks EFT funds manually; sending proof
+          alone does not mark payment received. Contact KMGMT if you believe a payment or
+          cancellation status is incorrect. Booking and payment records are retained for
+          reconciliation and applicable record-keeping requirements.
+        </p>
         <h2>4. Player CVs, footage and confidentiality</h2>
         <p>
           Player materials are used to understand your circumstances and provide the requested

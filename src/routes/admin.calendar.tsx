@@ -16,6 +16,7 @@ function CalendarPage() {
   const to = new Date(month); to.setMonth(to.getMonth() + 1); to.setDate(to.getDate() + 7);
   const q = useQuery({
     queryKey: ["admin", "calendar", month.toISOString()],
+    refetchInterval: 30_000,
     queryFn: () => listBookings({ from: from.toISOString(), to: to.toISOString() }),
   });
   const byDay = useMemo(() => {

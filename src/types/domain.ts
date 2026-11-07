@@ -74,6 +74,8 @@ export interface PublicBookingSummary {
   payment_status: PaymentStatus | null;
   payment_provider: string | null;
   invoice_number: string | null;
+  payment_due_at: string | null;
+  cancellation_reason: string | null;
 }
 
 export const WEEKDAYS = [

@@ -1,4 +1,5 @@
 import { pageSeo } from "@/lib/seo";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 import { publicSeoData } from "@/features/public/seo-loader";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -70,7 +71,11 @@ const FAQS = [
   },
   {
     q: "How do booking and payment work?",
-    a: "Choose your online consultation, share your details, select an available date and time, then choose a payment method. PayFast lets you pay securely online; confirmation and receipt emails follow payment verification. EFT reserves your slot and emails a confirmation and PDF invoice with bank details. For EFT, pay and attach proof via WhatsApp or email before the consultation; Kieraan verifies the funds manually. Kieraan arranges the video call through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; website booking and payment are still required.",
+    a: `Choose your online consultation, share your details, select an available date and time, then choose a payment method. PayFast lets you pay securely online; confirmation and receipt emails follow payment verification. EFT reserves your slot and emails a confirmation and PDF invoice with bank details. ${EFT_PAYMENT_POLICY} ${EFT_PROOF_POLICY} Kieraan arranges the video call through WhatsApp. Any alternative arrangement must be personally confirmed by Kieraan; website booking and payment are still required.`,
+  },
+  {
+    q: "What happens if I miss the EFT payment deadline?",
+    a: "Your unpaid EFT booking will automatically be cancelled and the slot released. The deadline is 3 calendar days (72 hours) after booking, or the consultation start time if sooner. Do not pay a cancelled invoice. If you already paid or sent proof, contact Kieraan with your booking reference so he can reconcile the funds and arrange another booking or discuss a manual refund. Statutory consumer rights still apply.",
   },
   {
     q: "Can I cancel, reschedule or request a refund?",

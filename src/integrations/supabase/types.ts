@@ -226,6 +226,7 @@ export type Database = {
         Row: {
           blocked_until: string
           booking_reference: string
+          cancellation_reason: string | null
           client_id: string
           consultation_format: string | null
           created_at: string
@@ -242,6 +243,7 @@ export type Database = {
         Insert: {
           blocked_until: string
           booking_reference: string
+          cancellation_reason?: string | null
           client_id: string
           consultation_format?: string | null
           created_at?: string
@@ -258,6 +260,7 @@ export type Database = {
         Update: {
           blocked_until?: string
           booking_reference?: string
+          cancellation_reason?: string | null
           client_id?: string
           consultation_format?: string | null
           created_at?: string
@@ -556,6 +559,7 @@ export type Database = {
           booking_id: string
           created_at: string
           currency: string
+          due_at: string | null
           id: string
           invoice_issued_at: string | null
           invoice_number: string | null
@@ -572,6 +576,7 @@ export type Database = {
           booking_id: string
           created_at?: string
           currency?: string
+          due_at?: string | null
           id?: string
           invoice_issued_at?: string | null
           invoice_number?: string | null
@@ -588,6 +593,7 @@ export type Database = {
           booking_id?: string
           created_at?: string
           currency?: string
+          due_at?: string | null
           id?: string
           invoice_issued_at?: string | null
           invoice_number?: string | null
@@ -857,11 +863,13 @@ export type Database = {
       }
       dispatch_booking_email_worker: { Args: never; Returns: undefined }
       dispatch_eft_email_worker: { Args: never; Returns: undefined }
+      eft_email_snapshot: { Args: { p_payment_id: string }; Returns: Json }
       enqueue_paid_booking_emails: {
         Args: { p_booking_id: string }
         Returns: undefined
       }
       expire_stale_holds: { Args: never; Returns: number }
+      expire_unpaid_eft_bookings: { Args: never; Returns: number }
       finish_booking_email_job: {
         Args: {
           p_error_code?: string

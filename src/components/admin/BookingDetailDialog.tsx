@@ -1,24 +1,48 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { ADMIN_SETTABLE_STATUSES, BOOKING_STATUS_LABEL, type BookingStatus } from "@/types/domain";
 import { formatDate, formatTime, formatZAR, formatDateTime } from "@/lib/utils/format";
-import { latestPayment, type AdminBooking } from "@/features/admin/queries";
+import { BOOKING_SELECT, latestPayment, type AdminBooking } from "@/features/admin/queries";
 import { BookingBadge, PaymentBadge } from "./AdminUI";
 import { consultationFormatLabel, consultationDelivery } from "@/lib/consultations";
 import { paymentMethodLabel } from "@/lib/payment-methods";
 import { VerifyEftPaymentButton } from "./VerifyEftPaymentButton";
 import { DeleteRecordButton } from "./DeleteRecordButton";
+import { EftDeadline } from "./EftDeadline";
 
 export function BookingDetailDialog({
-  booking,
+  booking: selectedBooking,
   onClose,
 }: {
   booking: AdminBooking | null;
   onClose: () => void;
 }) {
   const qc = useQueryClient();
+  const current = useQuery({
+    queryKey: ["admin", "booking-detail", selectedBooking?.id],
+    enabled: !!selectedBooking,
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(BOOKING_SELECT)
+        .eq("id", selectedBooking!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const booking = selectedBooking
+    ? current.data === undefined
+      ? selectedBooking
+      : current.data
+    : null;
+  useEffect(() => {
+    if (selectedBooking && current.isSuccess && current.data === null) onClose();
+  }, [selectedBooking, current.isSuccess, current.data, onClose]);
   const m = useMutation({
     mutationFn: async (status: BookingStatus) => {
       const { error } = await supabase.from("bookings").update({ status }).eq("id", booking!.id);
@@ -33,7 +57,11 @@ export function BookingDetailDialog({
       toast.error(
         e.message.includes("no_overlapping")
           ? "That time overlaps another booking."
-          : "Update failed",
+          : e.message.includes("EFT_DEADLINE_PASSED")
+            ? "The EFT deadline has passed. This reservation cannot be restored; reconcile any funds and arrange a new booking."
+            : e.message.includes("EFT_PAYMENT_REQUIRED")
+              ? "Verify the EFT payment before marking this consultation completed."
+              : "Update failed",
       ),
   });
   if (!booking) return null;
@@ -87,6 +115,13 @@ export function BookingDetailDialog({
             ["Payment reference", p?.provider_payment_id],
             ["Paid at", p?.paid_at ? formatDateTime(p.paid_at) : null],
           ])}
+          {p?.provider === "eft" && (
+            <EftDeadline
+              dueAt={p.due_at}
+              paymentStatus={p.status}
+              cancellationReason={booking.cancellation_reason}
+            />
+          )}
           {p?.provider === "eft" &&
             p.status === "pending" &&
             (booking.status === "confirmed" || booking.status === "completed") && (
@@ -95,7 +130,7 @@ export function BookingDetailDialog({
                   Verify the full amount in the bank account before marking this invoice paid. Proof
                   of payment does not automatically verify funds.
                 </p>
-                <VerifyEftPaymentButton paymentId={p.id} onVerified={onClose} />
+                <VerifyEftPaymentButton paymentId={p.id} dueAt={p.due_at} onVerified={onClose} />
               </div>
             )}
           {c &&

@@ -4,19 +4,23 @@ import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 import { getEmailConfig, snapshotSchema, type EmailConfig } from "./booking-email.ts";
 import type { Env } from "./types.ts";
 import type { ResendEnvelope } from "./resend.ts";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "../../../src/lib/eft-policy.ts";
 
 export const eftSnapshotSchema = z.object({
-  booking: snapshotSchema.shape.booking,
+  booking: snapshotSchema.shape.booking.extend({
+    cancellation_reason: z.string().nullable().optional(),
+  }),
   client: snapshotSchema.shape.client,
   service: snapshotSchema.shape.service,
   payment: z.object({
     id: z.string().uuid(),
     provider: z.literal("eft"),
-    status: z.literal("pending"),
+    status: z.enum(["pending", "cancelled"]),
     amount_cents: z.number().int().positive(),
     currency: z.literal("ZAR"),
     invoice_number: z.string().min(1),
     invoice_issued_at: z.string().datetime({ offset: true }),
+    due_at: z.string().datetime({ offset: true }).nullable().optional(),
   }),
 });
 type EftSnapshot = z.infer<typeof eftSnapshotSchema>;
@@ -44,6 +48,21 @@ export function getEftConfig(env: Env): EftConfig {
   )
     throw new Error("EFT configuration unavailable");
   return { email: getEmailConfig(env), bank, proofEmail, whatsapp };
+}
+
+function deadlineText(snapshot: EftSnapshot) {
+  if (!snapshot.payment.due_at) return null;
+  return (
+    new Intl.DateTimeFormat("en-ZA", {
+      timeZone: snapshot.booking.timezone,
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(snapshot.payment.due_at)) + " SAST"
+  );
 }
 
 const escape = (value: string) =>
@@ -140,7 +159,13 @@ async function invoicePdf(snapshot: EftSnapshot, config: EftConfig) {
   };
   const fmt = display(snapshot);
   write("PAYMENT PENDING - THIS INVOICE IS NOT A RECEIPT", true);
-  write(`Issued: ${fmt.date(snapshot.payment.invoice_issued_at)} | Due on receipt`);
+  const due = deadlineText(snapshot);
+  write(`Issued: ${fmt.date(snapshot.payment.invoice_issued_at)}`);
+  write(due ? `PAYMENT DEADLINE: ${due}` : "Due on receipt", !!due);
+  if (due) {
+    write(EFT_PAYMENT_POLICY);
+    write(EFT_PROOF_POLICY);
+  }
   write(`Booking reference / payment reference: ${snapshot.booking.reference}`);
   write(`Issued by KMGMT | ${config.email.siteUrl} | ${config.proofEmail}`);
   gap();
@@ -167,7 +192,7 @@ async function invoicePdf(snapshot: EftSnapshot, config: EftConfig) {
   gap();
   write("PROOF OF PAYMENT REQUIRED", true);
   write(
-    `Pay and send proof before your consultation. Attach the proof to a WhatsApp message (${config.whatsapp}) or an email to ${config.proofEmail}, including your booking reference.`,
+    `Pay and send proof ${due ? "by the payment deadline" : "before your consultation"}. Attach the proof to a WhatsApp message (${config.whatsapp}) or an email to ${config.proofEmail}, including your booking reference.`,
   );
   write(
     "Your appointment is reserved, but payment remains pending until Kieraan verifies receipt of funds. Sending proof does not automatically mark this invoice paid.",
@@ -181,13 +206,62 @@ async function invoicePdf(snapshot: EftSnapshot, config: EftConfig) {
 }
 
 export async function buildEftEmail(
-  kind: "customer_invoice" | "admin_notification",
+  kind: "customer_invoice" | "admin_notification" | "customer_cancellation" | "admin_cancellation",
   snapshot: EftSnapshot,
   config: EftConfig,
 ): Promise<ResendEnvelope> {
-  const admin = kind === "admin_notification";
+  const admin = kind === "admin_notification" || kind === "admin_cancellation";
   const { booking, client, service, payment } = snapshot;
   const fmt = display(snapshot);
+  const due = deadlineText(snapshot);
+  if (kind === "customer_cancellation" || kind === "admin_cancellation") {
+    const title = admin
+      ? "EFT booking automatically cancelled"
+      : "Booking cancelled — EFT payment deadline passed";
+    const intro = admin
+      ? "This booking was automatically cancelled because its EFT payment was still pending when the deadline passed. Its slot has been released. Payment and booking records are retained in your dashboard."
+      : `Hi ${client.full_name}, your booking was automatically cancelled because EFT payment had not been verified by the deadline. Your reserved slot has been released. Please do not pay the cancelled invoice. If you already paid or sent proof, contact Kieraan with your reference so he can check the funds and arrange a new booking or discuss a manual refund.`;
+    const action = admin
+      ? `${config.email.siteUrl}/admin/bookings`
+      : `${config.email.siteUrl}/booking/success?booking=${encodeURIComponent(booking.id)}`;
+    const rows: [string, string][] = [
+      ["Booking reference", booking.reference],
+      ["Invoice", payment.invoice_number],
+      ["Client", client.full_name],
+      ["Client email", client.email],
+      ["Client WhatsApp", client.whatsapp],
+      ["Consultation", service.name],
+      ["Date", fmt.date(booking.start_time)],
+      ["Time", `${fmt.time(booking.start_time)} SAST`],
+      ["Invoice total", `${fmt.amount} ZAR`],
+      ["Payment method", "EFT / bank transfer"],
+      ["Payment deadline", due || "See original invoice"],
+      ["Booking status", "Automatically cancelled — EFT deadline passed"],
+    ];
+    const details = rows
+      .map(
+        ([label, value]) =>
+          `<tr><td style="padding:9px;border-bottom:1px solid #e8e4dc;color:#625d53">${escape(label)}</td><td style="padding:9px;border-bottom:1px solid #e8e4dc;overflow-wrap:anywhere">${escape(value)}</td></tr>`,
+      )
+      .join("");
+    return {
+      from: config.email.from,
+      to: [admin ? config.email.admin : client.email],
+      reply_to: admin ? client.email : config.proofEmail,
+      subject: `${title} | ${booking.reference} | KMGMT`,
+      html: `<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body style="margin:0;padding:24px 12px;background:#f5f3ee;color:#242424;font:14px/1.6 Arial,sans-serif"><table role="presentation" style="width:100%;max-width:660px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:28px 32px"><h1 style="font-size:24px">${escape(title)}</h1><p>${escape(intro)}</p><table role="presentation" style="width:100%;border-collapse:collapse">${details}</table><p style="margin-top:24px"><a href="${escape(action)}" style="display:inline-block;padding:12px 18px;background:#242424;color:#fffdf8;text-decoration:none;font-weight:bold;border-radius:4px">${admin ? "View in your dashboard" : "View booking status"}</a></p>${admin ? "" : `<p>Contact Kieraan: ${escape(config.whatsapp)} or ${escape(config.proofEmail)}.</p>`}<p style="font-size:12px;color:#625d53">No refund is issued automatically. Statutory consumer rights still apply.</p></td></tr></table></body></html>`,
+      text: [
+        title,
+        intro,
+        "",
+        ...rows.map(([label, value]) => `${label}: ${value}`),
+        "",
+        action,
+        ...(admin ? [] : [`Contact Kieraan: ${config.whatsapp} or ${config.proofEmail}.`]),
+        "No refund is issued automatically. Statutory consumer rights still apply.",
+      ].join("\n"),
+    };
+  }
   const proofMessage = `Hello Kieraan, attached is my proof of EFT payment for booking ${booking.reference}, invoice ${payment.invoice_number}.`;
   const whatsappUrl = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(proofMessage)}`;
   const mailUrl = `mailto:${config.proofEmail}?subject=${encodeURIComponent(`EFT proof of payment - ${booking.reference}`)}&body=${encodeURIComponent(proofMessage)}`;
@@ -210,6 +284,12 @@ export async function buildEftEmail(
     ["Amount due", `${fmt.amount} ZAR`],
     ["Invoice issued", fmt.date(payment.invoice_issued_at)],
     ["Payment reference", booking.reference],
+    ...(due
+      ? ([
+          ["Payment deadline", due],
+          ["EFT payment policy", EFT_PAYMENT_POLICY],
+        ] as [string, string][])
+      : []),
   ];
   const bankRows: [string, string][] = [
     ["Bank", config.bank.name],
@@ -245,7 +325,10 @@ export async function buildEftEmail(
   if (admin) {
     const title = "Booking received — EFT payment pending";
     const intro =
-      "A client has reserved an online consultation and selected EFT. Payment is pending and has not been verified.";
+      "A client has reserved an online consultation and selected EFT. Payment is pending and has not been verified." +
+      (due
+        ? ` Verify the funds and mark EFT received before ${due} to prevent automatic cancellation.`
+        : "");
     const dashboardUrl = `${config.email.siteUrl}/admin/bookings`;
     return {
       from: config.email.from,
@@ -270,7 +353,7 @@ export async function buildEftEmail(
   const title = admin ? "New EFT booking — payment pending" : "Booking confirmation & EFT invoice";
   const intro = admin
     ? "A client has reserved an online consultation and selected EFT. Their invoice is attached. No funds have been verified; review proof and your bank account before marking the payment received in admin."
-    : `Hi ${client.full_name}, your consultation slot is reserved. Your invoice is attached. Please pay by EFT using the details below and send proof of payment before your consultation. Payment is still pending and will be verified manually by Kieraan.`;
+    : `Hi ${client.full_name}, your consultation slot is reserved. Your invoice is attached. Please pay by EFT using the details below and send proof of payment ${due ? `by ${due}` : "before your consultation"}. Payment is still pending and will be verified manually by Kieraan.${due ? ` ${EFT_PAYMENT_POLICY} ${EFT_PROOF_POLICY}` : ""}`;
   const action = admin
     ? `${config.email.siteUrl}/admin/bookings`
     : `${config.email.siteUrl}/booking/success?booking=${encodeURIComponent(booking.id)}`;

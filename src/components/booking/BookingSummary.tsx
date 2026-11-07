@@ -14,6 +14,7 @@ import type { PublicService } from "@/features/public/queries";
 import { consultant } from "@/content/site";
 import { consultationFormatLabel, type ConsultationFormat } from "@/lib/consultations";
 import { paymentMethodLabel, type PaymentMethod } from "@/lib/payment-methods";
+import { EFT_PAYMENT_POLICY } from "@/lib/eft-policy";
 
 type SummaryProps = {
   service: PublicService | null;
@@ -102,6 +103,9 @@ export function MobileBookingSummary(props: SummaryProps) {
       </summary>
       <div className="mt-4 border-t border-gold/20 pt-5">
         <SummaryDetails {...props} />
+        {props.paymentMethod === "eft" && (
+          <p className="mt-4 text-xs leading-6 text-muted-foreground">{EFT_PAYMENT_POLICY}</p>
+        )}
       </div>
     </details>
   );
@@ -169,7 +173,7 @@ export function BookingSummary(props: SummaryProps) {
           {props.paymentMethod === "payfast"
             ? "Pay securely through PayFast. Your booking is confirmed and emailed after payment verification."
             : props.paymentMethod === "eft"
-              ? "EFT bookings receive an invoice by email. Payment remains pending until funds are verified manually."
+              ? `EFT bookings receive an invoice by email. ${EFT_PAYMENT_POLICY}`
               : "Choose secure online payment through PayFast or an EFT invoice by email."}
         </p>
       </div>

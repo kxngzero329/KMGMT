@@ -2,15 +2,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useEftDeadlinePassed } from "@/hooks/use-eft-deadline";
 
 export function VerifyEftPaymentButton({
   paymentId,
   onVerified,
+  dueAt,
 }: {
   paymentId: string;
   onVerified?: () => void;
+  dueAt?: string | null;
 }) {
   const qc = useQueryClient();
+  const overdue = useEftDeadlinePassed(dueAt);
   const mutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.rpc("verify_eft_payment", { p_payment_id: paymentId });
@@ -21,16 +25,18 @@ export function VerifyEftPaymentButton({
       void qc.invalidateQueries({ queryKey: ["admin"] });
       onVerified?.();
     },
-    onError: () =>
+    onError: (error: Error) =>
       toast.error(
-        "Could not verify this EFT payment. Refresh and check that the booking is still reserved and awaiting payment.",
+        error.message.includes("EFT_DEADLINE_PASSED")
+          ? "The EFT deadline has passed. Contact the client to reconcile any funds and arrange a new booking or manual refund."
+          : "Could not verify this EFT payment. Refresh and check that the booking is still reserved and awaiting payment.",
       ),
   });
   return (
     <Button
       size="sm"
       variant="outline"
-      disabled={mutation.isPending}
+      disabled={mutation.isPending || overdue}
       onClick={() => {
         if (
           window.confirm(
@@ -40,7 +46,7 @@ export function VerifyEftPaymentButton({
           mutation.mutate();
       }}
     >
-      {mutation.isPending ? "Saving…" : "Mark EFT received"}
+      {mutation.isPending ? "Saving…" : overdue ? "EFT deadline passed" : "Mark EFT received"}
     </Button>
   );
 }

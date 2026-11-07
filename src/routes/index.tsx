@@ -1,4 +1,5 @@
 import { pageSeo } from "@/lib/seo";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 import { publicSeoData } from "@/features/public/seo-loader";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -69,7 +70,7 @@ const STEPS = [
   },
   {
     title: "Receive confirmation",
-    text: "Reserve your slot, receive your invoice by email, then pay and send proof.",
+    text: "For EFT, pay within 3 days of booking or before your session if sooner to keep your slot.",
     icon: CheckCircle2,
   },
   { title: "Plan your next move", text: "Meet with Kieraan for honest, practical guidance." },
@@ -127,7 +128,11 @@ const FAQS = [
   },
   {
     q: "How does payment work?",
-    a: "Choose PayFast to pay securely online; your booking confirmation and payment receipt are emailed after payment verification. Or choose EFT to reserve your slot and receive a confirmation and PDF invoice by email, with bank details and a payment reference. For EFT, pay and send proof via WhatsApp or email before your consultation. Kieraan verifies EFT funds manually.",
+    a: `Choose PayFast to pay securely online; your booking confirmation and payment receipt are emailed after payment verification. Or choose EFT to reserve your slot and receive a confirmation and PDF invoice by email, with bank details and a payment reference. ${EFT_PAYMENT_POLICY} ${EFT_PROOF_POLICY}`,
+  },
+  {
+    q: "How long do I have to pay an EFT booking?",
+    a: `${EFT_PAYMENT_POLICY} Your exact deadline appears in your confirmation email, PDF invoice and booking status page in South African time. ${EFT_PROOF_POLICY}`,
   },
 ];
 

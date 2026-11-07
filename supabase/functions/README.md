@@ -44,7 +44,19 @@ An EFT booking reserves the selected slot (`bookings.status = confirmed`) while
 its payment remains `pending`. Its hold expiry is cleared so it does not disappear
 after the short PayFast checkout hold. Reservation and payment are separate;
 the customer screen and invoice explicitly say that funds have not been verified.
-Unpaid EFT reservations require manual follow-up or cancellation by an admin.
+New EFT bookings have a server-assigned `payments.due_at`: 72 hours after
+`bookings.created_at`, or the consultation start if sooner. Existing bookings
+retain a null deadline and their original terms; no historical rows are backfilled.
+Retries and delayed email delivery do not restart the payment window.
+
+`kmgmt-expire-unpaid-eft` runs `expire_unpaid_eft_bookings()` every minute. It
+locks the booking and then its payment, rechecks that the EFT payment is pending,
+and changes the reservation and payment to `cancelled`. It stores
+`bookings.cancellation_reason = eft_payment_overdue`, releases the slot and
+queues separate customer/admin cancellation notifications. Records are retained.
+Paid, legacy and already closed bookings are excluded. No refunds are issued.
+Cancellation occurs on the next scheduled run after the exact deadline, normally
+within a minute, and does not depend on anyone opening the website.
 
 The transaction assigns a unique invoice number and queues a customer confirmation
 and full admin notification in the service-only `eft_email_outbox`. The private
@@ -63,14 +75,22 @@ from the temporary admin notification recipient in `ADMIN_NOTIFICATION_EMAIL`.
 Admin EFT emails contain booking, payment and client details with a **View in your
 dashboard** link. Customer payment instructions, bank details, proof buttons,
 session-arrangement paragraphs and the customer invoice attachment are omitted
-from admin notifications. The customer confirmation email and PDF are unchanged.
+from admin notifications. Both initial emails show the exact EFT deadline and
+automatic-cancellation policy; the customer's PDF invoice includes the same.
 Previously frozen delivery payloads keep their original content for safe retries.
 
 The admin booking list, dashboard, booking details and payment list show the
 selected method. After checking that the full amount arrived in the bank account,
 an admin can select **Mark EFT received**. The `verify_eft_payment` RPC checks
 `is_admin()`, requires a reserved/completed EFT booking with a pending payment,
-and records the paid timestamp and verifying admin. It never marks a PayFast
+and records the paid timestamp and verifying admin. For new bookings it refuses
+verification after the deadline. Admin must check the bank account and mark
+funds received before the deadline; proof via WhatsApp/email alone does not stop
+automatic cancellation. New unverified EFT bookings cannot be marked completed
+to evade expiry. Overdue reservations cannot be reconfirmed. Late or unrecorded
+payments need manual reconciliation and a new booking or refund discussion;
+there is no automatic reinstatement into a possibly reassigned slot.
+It never marks a PayFast
 payment paid and does not send or alter PayFast confirmation emails.
 
 The EFT worker uses database leases, frozen requests, stable Resend idempotency
@@ -78,7 +98,9 @@ keys and saved delivery receipts. It is nudged on booking creation and retried
 every minute by `kmgmt-eft-email-retries`. Pending invoice jobs are stopped for
 closed bookings or changed payments. Inspect `eft_email_outbox` through a
 privileged connection for delivery failures or `manual_review`; reconcile Resend
-before requeuing an ambiguous delivery. The worker accepts only a private-token
+before requeuing an ambiguous delivery. Cancellation emails have no invoice,
+bank account details or payment buttons and use separate job IDs/idempotency
+keys. The worker accepts only a private-token
 POST `{}`, with no arbitrary recipient or sample-email mode.
 
 Additional Supabase Edge secrets (never put these in Netlify or `VITE_*`):

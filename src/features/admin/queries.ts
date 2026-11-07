@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const BOOKING_SELECT =
-  "*, services(id, name, duration_minutes, price_cents), clients(*), payments(id, status, amount_cents, provider, provider_payment_id, paid_at, invoice_number)";
+  "*, services(id, name, duration_minutes, price_cents), clients(*), payments(id, status, amount_cents, provider, provider_payment_id, paid_at, invoice_number, due_at)";
 
 export async function listBookings(opts: { from?: string; to?: string; limit?: number } = {}) {
   let q = supabase

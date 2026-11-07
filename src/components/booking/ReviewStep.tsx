@@ -7,6 +7,7 @@ import { StepNav } from "./Stepper";
 import { createBookingHold } from "@/features/bookings/bookings.functions";
 import { createPayfastPayment } from "@/features/payments/client";
 import { createEftBooking } from "@/features/payments/eft-client";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 import {
   paymentMethodLabel,
   PAYFAST_AVAILABLE,
@@ -195,7 +196,7 @@ export function ReviewStep({
         />
         <p className="text-xs leading-6 text-muted-foreground">
           {paymentMethod === "eft"
-            ? "Confirm to reserve this slot and receive your booking confirmation and PDF invoice by email, with the bank details and payment reference. Pay by EFT and attach proof of payment via WhatsApp or email before your consultation. Payment remains pending until Kieraan verifies the funds."
+            ? `Confirm to reserve this slot and receive your booking confirmation and PDF invoice by email, with the bank details and payment reference. ${EFT_PAYMENT_POLICY} ${EFT_PROOF_POLICY}`
             : "Your selected time is temporarily reserved when you continue to PayFast. Your booking is confirmed once payment is received."}
         </p>
       </div>

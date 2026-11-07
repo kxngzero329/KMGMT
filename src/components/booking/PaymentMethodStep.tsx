@@ -2,6 +2,7 @@ import { Landmark, CreditCard } from "lucide-react";
 import { BookingStepHeading } from "./BookingStep";
 import { StepNav } from "./Stepper";
 import { PAYFAST_AVAILABLE, PAYFAST_NOTICE, type PaymentMethod } from "@/lib/payment-methods";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 
 export function PaymentMethodStep({
   selected,
@@ -38,8 +39,7 @@ export function PaymentMethodStep({
             </span>
             <span className="mt-2 block text-sm leading-7 text-muted-foreground">
               Receive a booking confirmation and PDF invoice by email, including the bank details
-              and your payment reference. Pay by EFT and attach proof of payment via WhatsApp or
-              email before your consultation.
+              and your payment reference. {EFT_PAYMENT_POLICY}
             </span>
           </span>
         </label>
@@ -81,7 +81,7 @@ export function PaymentMethodStep({
       <p className="mt-5 rounded-md border border-gold/25 bg-secondary p-4 text-xs leading-6 text-muted-foreground">
         {selected === "payfast"
           ? "PayFast bookings are confirmed after payment verification. Complete checkout before your temporary slot reservation expires."
-          : "With EFT, your slot is reserved when you confirm your booking. Payment stays pending until Kieraan verifies the funds in his bank account. Sending proof does not automatically mark your booking paid."}
+          : `With EFT, your slot is reserved when you confirm your booking. ${EFT_PROOF_POLICY}`}
       </p>
       <StepNav
         onBack={onBack}

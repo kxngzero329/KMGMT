@@ -9,6 +9,8 @@ import { formatDate, formatTime, formatZAR } from "@/lib/utils/format";
 import { consultationFormatLabel, consultationDelivery } from "@/lib/consultations";
 import { contactDetails } from "@/content/site";
 import { proofOfPaymentLinks } from "@/lib/payment-methods";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
+import { useEftDeadlinePassed } from "@/hooks/use-eft-deadline";
 
 export const Route = createFileRoute("/booking/success")({
   validateSearch: z.object({ booking: z.string().uuid().optional() }),
@@ -32,12 +34,16 @@ function Success() {
     queryFn: () => fetchBookingSummary(booking!),
     enabled: !!booking,
     // Poll until PayFast's server notification confirms payment.
-    refetchInterval: (query) =>
-      query.state.data?.status === "confirmed" || Date.now() - startedAt.current > 90_000
+    refetchInterval: (query) => {
+      if (query.state.data?.payment_provider === "eft")
+        return query.state.data.payment_status === "pending" ? 30_000 : false;
+      return query.state.data?.status === "confirmed" || Date.now() - startedAt.current > 90_000
         ? false
-        : 3000,
+        : 3000;
+    },
   });
   const b = q.data;
+  const eftOverdue = useEftDeadlinePassed(b?.payment_due_at);
   const whatsappDigits = contactDetails.whatsapp.replace(/\D/g, "");
 
   if (!booking || (q.isFetched && !b)) {
@@ -55,7 +61,10 @@ function Success() {
   }
 
   if (b?.payment_provider === "eft") {
-    const active = b.status === "confirmed" || b.status === "completed";
+    const automaticallyCancelled = b.cancellation_reason === "eft_payment_overdue";
+    const active =
+      (b.status === "confirmed" || b.status === "completed") &&
+      !(b.payment_status === "pending" && eftOverdue);
     const paid = b.payment_status === "paid";
     const awaitingPayment = active && b.payment_status === "pending";
     const proof = proofOfPaymentLinks(b.booking_reference, b.invoice_number);
@@ -64,7 +73,11 @@ function Success() {
         <CheckCircle2 className="h-10 w-10 text-[#806022]" aria-hidden />
         <h1 className="mt-4 text-3xl font-extrabold md:text-4xl">
           {!active
-            ? "Booking closed"
+            ? automaticallyCancelled
+              ? "Booking automatically cancelled"
+              : eftOverdue && b.payment_status === "pending"
+                ? "EFT payment deadline passed"
+                : "Booking closed"
             : paid
               ? "Booking confirmed — EFT received"
               : awaitingPayment
@@ -73,7 +86,11 @@ function Success() {
         </h1>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
           {!active
-            ? "This reservation is no longer active. Please contact KMGMT before making any payment."
+            ? automaticallyCancelled
+              ? "Your booking was automatically cancelled because EFT payment had not been verified by the deadline. The slot has been released. Do not pay the cancelled invoice. If you already paid or sent proof, contact Kieraan with your reference so he can check the funds and arrange a new booking or discuss a manual refund."
+              : eftOverdue && b.payment_status === "pending"
+                ? "The EFT payment deadline has passed and this booking is awaiting automatic cancellation. Please do not make a payment now. Contact Kieraan if you already paid or sent proof."
+                : "This reservation is no longer active. Please contact KMGMT before making any payment."
             : awaitingPayment
               ? "Your selected slot is reserved. Your booking confirmation and PDF invoice will be emailed to the address you provided, including the bank details and payment reference. Check your inbox and spam folder; contact KMGMT if the invoice does not arrive."
               : paid
@@ -91,6 +108,14 @@ function Success() {
             ["Duration", `${b.duration_minutes} minutes`],
             ["Name", b.client_name],
             ["Payment method", "EFT / bank transfer"],
+            ...(b.payment_due_at
+              ? [
+                  [
+                    "EFT payment deadline",
+                    `${formatDate(b.payment_due_at)}, ${formatTime(b.payment_due_at)} SAST`,
+                  ],
+                ]
+              : []),
             [
               "Payment status",
               paid
@@ -115,7 +140,10 @@ function Success() {
             <h2 className="font-semibold">Pay by EFT and attach proof of payment</h2>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
               Use the bank details in your email invoice and reference{" "}
-              <strong>{b.booking_reference}</strong>. Pay and send proof before your consultation.
+              <strong>{b.booking_reference}</strong>.{" "}
+              {b.payment_due_at
+                ? `Pay and send proof by ${formatDate(b.payment_due_at)}, ${formatTime(b.payment_due_at)} SAST.`
+                : "Pay and send proof before your consultation."}
               Choose a button below, attach your proof in WhatsApp or email, then send it. Payment
               stays pending until Kieraan verifies the funds in his bank account.
             </p>
@@ -129,6 +157,11 @@ function Success() {
                 <a href={proof.email}>Send proof via email</a>
               </Button>
             </div>
+            {b.payment_due_at && (
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {EFT_PAYMENT_POLICY} {EFT_PROOF_POLICY}
+              </p>
+            )}
             <p className="mt-3 text-xs leading-6 text-muted-foreground">
               WhatsApp: {contactDetails.whatsapp}
               <br />

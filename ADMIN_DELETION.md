@@ -17,6 +17,10 @@ deactivating a service or archiving a player. Those options retain history.
 
 Deleting records does not refund a payment or recall emails/invoice attachments
 already sent. Handle required refunds before deleting the transaction history.
+Automatic cancellation of overdue EFT bookings retains the booking, payment and
+email records; it does not use these permanent delete actions. New EFT deadlines
+are 72 hours after booking, or the consultation start if sooner. Legacy EFT
+bookings retain their original terms.
 The freed time remains subject to booking notice, buffer and availability rules.
 Client deletion applies to the selected client record; another record with the
 same email is not automatically deleted.

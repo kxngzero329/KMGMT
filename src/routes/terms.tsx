@@ -2,6 +2,7 @@ import { pageSeo } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PolicyContact } from "@/components/common/PolicyContact";
+import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 
 export const Route = createFileRoute("/terms")({
   head: () => pageSeo("/terms"),
@@ -13,7 +14,7 @@ function Terms() {
     <>
       <PageHeader eyebrow="Legal" title="Terms & Conditions" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 1 November 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 7 November 2026</p>
         <p>
           These terms apply to kmgmt.co.za and to football consultations, career guidance and player
           advisory services booked through KMGMT. They include our refund, cancellation,
@@ -73,8 +74,14 @@ function Terms() {
           EFT / bank transfer is currently available. Confirming an EFT booking reserves your slot
           and sends a booking confirmation and PDF invoice by email, including bank details, the
           amount due and your booking reference to use as the payment reference. The reservation
-          does not mean that payment has been received. Pay on receipt of the invoice and before
-          your consultation; contact KMGMT promptly if you cannot do so.
+          does not mean that payment has been received. {EFT_PAYMENT_POLICY}
+        </p>
+        <p>
+          {EFT_PROOF_POLICY} Your exact deadline is shown in SAST in your confirmation email, PDF
+          invoice and booking status page. The three days are calendar days (including weekends and
+          public holidays), not working days. The deadline starts when your booking is made;
+          receiving or reopening an invoice does not restart it. This rule applies to new EFT
+          bookings from 7 November 2026; earlier bookings retain their original terms.
         </p>
         <p>
           For EFT, attach proof of payment to a WhatsApp message or email using the buttons in your
@@ -140,6 +147,14 @@ function Terms() {
         <h2 id="cancellations" className="scroll-mt-24">
           4. Cancellation and Rescheduling Policy
         </h2>
+        <p>
+          <strong>Automatic cancellation for unpaid EFT bookings:</strong> {EFT_PAYMENT_POLICY}
+          Automatic cancellation releases the reservation but retains booking and payment records.
+          Do not pay a cancelled invoice. If you paid or sent proof before cancellation, contact
+          Kieraan with your reference so he can reconcile the funds and arrange a new booking or
+          discuss a manual refund. Cancellation does not automatically issue a refund. Your
+          statutory consumer rights still apply.
+        </p>
         <p>
           Please give at least <strong>24 hours&apos; notice before the scheduled start</strong> to
           cancel or request rescheduling. Send the request via WhatsApp with your name, booking

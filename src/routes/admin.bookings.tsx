@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { BookingDetailDialog } from "@/components/admin/BookingDetailDialog";
 import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
+import { EftDeadline } from "@/components/admin/EftDeadline";
 import { latestPayment, listBookings, type AdminBooking } from "@/features/admin/queries";
 import {
   BOOKING_STATUSES,
@@ -26,7 +27,11 @@ import { paymentMethodLabel } from "@/lib/payment-methods";
 export const Route = createFileRoute("/admin/bookings")({ component: Bookings });
 
 function Bookings() {
-  const q = useQuery({ queryKey: ["admin", "bookings"], queryFn: () => listBookings() });
+  const q = useQuery({
+    queryKey: ["admin", "bookings"],
+    queryFn: () => listBookings(),
+    refetchInterval: 30_000,
+  });
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [pay, setPay] = useState("");
@@ -153,12 +158,23 @@ function Bookings() {
                 <td className="p-3">{formatZAR(b.services?.price_cents)}</td>
                 <td className="p-3">
                   <BookingBadge status={b.status} />
+                  {b.cancellation_reason === "eft_payment_overdue" && (
+                    <span className="mt-1 block text-xs text-destructive">
+                      EFT payment deadline passed
+                    </span>
+                  )}
                 </td>
                 <td className="p-3">
                   <PaymentBadge status={latestPayment(b)?.status} />
                   <span className="mt-1 block text-xs text-muted-foreground">
                     {paymentMethodLabel(latestPayment(b)?.provider)}
                   </span>
+                  {latestPayment(b)?.provider === "eft" && (
+                    <EftDeadline
+                      dueAt={latestPayment(b)?.due_at}
+                      paymentStatus={latestPayment(b)?.status}
+                    />
+                  )}
                 </td>
                 <td className="p-3">
                   <DeleteRecordButton

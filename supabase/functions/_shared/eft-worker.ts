@@ -19,7 +19,12 @@ const payloadSchema = z.object({
 const jobSchema = z.object({
   id: z.string().uuid(),
   lock_token: z.string().uuid(),
-  kind: z.enum(["customer_invoice", "admin_notification"]),
+  kind: z.enum([
+    "customer_invoice",
+    "admin_notification",
+    "customer_cancellation",
+    "admin_cancellation",
+  ]),
   snapshot: eftSnapshotSchema,
   request_payload: payloadSchema.nullable(),
 });
@@ -39,6 +44,16 @@ export async function processEftEmails(deps: PaymentDependencies) {
       const parsed = jobSchema.safeParse(raw);
       if (!parsed.success) throw new DeliveryError("invalid_eft_snapshot", true);
       const job = parsed.data;
+      const cancellation =
+        job.kind === "customer_cancellation" || job.kind === "admin_cancellation";
+      if (
+        cancellation
+          ? job.snapshot.booking.status !== "cancelled" ||
+            job.snapshot.payment.status !== "cancelled"
+          : job.snapshot.payment.status !== "pending" ||
+            (job.snapshot.payment.due_at && Date.parse(job.snapshot.payment.due_at) <= Date.now())
+      )
+        throw new DeliveryError("eft_message_no_longer_applicable", true);
       const proposed = job.request_payload ?? (await buildEftEmail(job.kind, job.snapshot, config));
       const frozen = await deps.supabase.rpc("freeze_eft_email_request", {
         p_id: job.id,

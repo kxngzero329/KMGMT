@@ -9,16 +9,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { paymentMethodLabel } from "@/lib/payment-methods";
 import { VerifyEftPaymentButton } from "@/components/admin/VerifyEftPaymentButton";
 import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
+import { EftDeadline } from "@/components/admin/EftDeadline";
 
 export const Route = createFileRoute("/admin/payments")({ component: Payments });
 
 function Payments() {
   const q = useQuery({
     queryKey: ["admin", "payments"],
+    refetchInterval: 30_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("payments")
-        .select("*, bookings(booking_reference, status, clients(full_name), services(name))")
+        .select(
+          "*, bookings(booking_reference, status, cancellation_reason, clients(full_name), services(name))",
+        )
         .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
@@ -73,6 +77,7 @@ function Payments() {
               const b = p.bookings as {
                 booking_reference: string;
                 status: string;
+                cancellation_reason: string | null;
                 clients: { full_name: string } | null;
                 services: { name: string } | null;
               } | null;
@@ -90,6 +95,13 @@ function Payments() {
                   </td>
                   <td className="p-3">
                     <PaymentBadge status={p.status} />
+                    {p.provider === "eft" && (
+                      <EftDeadline
+                        dueAt={p.due_at}
+                        paymentStatus={p.status}
+                        cancellationReason={b?.cancellation_reason ?? null}
+                      />
+                    )}
                   </td>
                   <td className="p-3 break-all">{p.provider_payment_id ?? ""}</td>
                   <td className="p-3 whitespace-nowrap">
@@ -100,7 +112,7 @@ function Payments() {
                       {p.provider === "eft" &&
                         p.status === "pending" &&
                         (b?.status === "confirmed" || b?.status === "completed") && (
-                          <VerifyEftPaymentButton paymentId={p.id} />
+                          <VerifyEftPaymentButton paymentId={p.id} dueAt={p.due_at} />
                         )}
                       <DeleteRecordButton
                         entity="booking"

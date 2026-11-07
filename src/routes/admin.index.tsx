@@ -6,6 +6,7 @@ import { AdminTitle, BookingBadge, PaymentBadge, Panel } from "@/components/admi
 import { BookingDetailDialog } from "@/components/admin/BookingDetailDialog";
 import { BOOKING_SELECT, latestPayment, type AdminBooking } from "@/features/admin/queries";
 import { paymentMethodLabel } from "@/lib/payment-methods";
+import { EftDeadline } from "@/components/admin/EftDeadline";
 import { formatDateTime, formatZAR, toZonedDateKey } from "@/lib/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -15,6 +16,7 @@ function Dashboard() {
   const [open, setOpen] = useState<AdminBooking | null>(null);
   const q = useQuery({
     queryKey: ["admin", "dashboard"],
+    refetchInterval: 30_000,
     queryFn: async () => {
       const now = new Date().toISOString();
       const [upcoming, pending, pendingEft, confirmed, revenue, enquiries, players] =
@@ -85,6 +87,12 @@ function Dashboard() {
   return (
     <>
       <AdminTitle title="Dashboard" />
+      <p className="mb-5 rounded-md border border-gold/25 bg-card p-4 text-sm leading-7 text-muted-foreground">
+        New EFT bookings must be paid and verified within 3 calendar days (72 hours), or before the
+        consultation if sooner. Check funds and mark EFT received before the deadline. Unverified
+        bookings are automatically cancelled; the reason is shown in Bookings and Payments. Existing
+        EFT bookings keep their original terms.
+      </p>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {q.isLoading &&
           Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
@@ -112,6 +120,12 @@ function Dashboard() {
                   <span className="block text-sm text-muted-foreground">
                     {b.services?.name} · {formatDateTime(b.start_time)}
                   </span>
+                  {latestPayment(b)?.provider === "eft" && (
+                    <EftDeadline
+                      dueAt={latestPayment(b)?.due_at}
+                      paymentStatus={latestPayment(b)?.status}
+                    />
+                  )}
                 </span>
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-muted-foreground">
