@@ -13,7 +13,7 @@ function Privacy() {
     <>
       <PageHeader eyebrow="Legal" title="Privacy Policy" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 7 November 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 8 November 2026</p>
         <h2>1. Who this policy covers</h2>
         <p>
           KMGMT provides football consultations, career guidance and player advisory services
@@ -66,6 +66,14 @@ function Privacy() {
           <li>
             <strong>Guardian details:</strong> parent or guardian name, email, phone and consent for
             players under 18.
+          </li>
+          <li>
+            <strong>Public reviews:</strong> the display name, star rating, review text and optional
+            role/context you choose to submit, the publication date, and any public KMGMT reply. We
+            also collect a private email address to notify KMGMT about your review and send you
+            notifications when KMGMT publishes or updates a reply. Your email is stored separately
+            from public reviews and is not displayed on the website. Reviews do not require a
+            booking, account or phone number.
           </li>
           <li>
             <strong>Enquiries and technical information:</strong> messages sent through our contact
@@ -143,11 +151,14 @@ function Privacy() {
             <strong>PayFast:</strong> payment processing and transaction verification.
           </li>
           <li>
-            <strong>Resend:</strong> booking confirmation, EFT invoice attachments, receipt and
-            admin enquiry emails. Client emails contain booking and payment details; KMGMT&apos;s
-            admin notifications include submitted booking information or contact-form name, email,
-            optional phone, subject and message, as appropriate. Enquiry notifications use the
-            submitted email as the reply address.
+            <strong>Resend:</strong> booking confirmation, EFT invoice attachments, receipt, admin
+            enquiry emails, new-review notifications and review-reply notifications. Review
+            notifications contain the review, display name, rating and any reply; admin review
+            notifications also include the reviewer&apos;s private email address. Client booking
+            emails contain booking and payment details; KMGMT&apos;s admin notifications include
+            submitted booking information or contact-form name, email, optional phone, subject and
+            message, as appropriate. Enquiry notifications use the submitted email as the reply
+            address.
           </li>
           <li>
             <strong>Email, WhatsApp and an agreed video-call provider:</strong> proof-of-payment
@@ -166,6 +177,29 @@ function Privacy() {
         </p>
 
         <h2>7. Security and retention</h2>
+        <p>
+          When you consent to publishing a review, it appears immediately on this website without
+          admin approval and can be read or copied by anyone. Use a display name you are comfortable
+          making public and avoid private booking, payment, health or other sensitive information.
+          KMGMT may publish a reply underneath your review and notify you at the private email
+          address supplied. Editing a reply may generate an updated notification; saving unchanged
+          text or deleting a reply does not send a new email. This does not subscribe you to
+          marketing. Reviews are not verified against bookings. Contact us using the privacy details
+          above to request a correction, removal or withdrawal of publishing consent. Removing
+          information here cannot remove copies already made by third parties. If you are under 18,
+          ask a parent or guardian to submit a review in their own name instead of sharing a child’s
+          personal information.
+        </p>
+        <p>
+          To reduce spam and duplicate submissions, review processing uses a keyed hash of network
+          information and a submission fingerprint in private records. Raw IP addresses are not
+          stored in the review tables. These anti-spam records expire after 24 hours and are removed
+          by an hourly cleanup; normal hosting and security logs may be retained separately by our
+          providers. Private email addresses and notification delivery records are retained to
+          operate reply notifications and handle delivery issues, subject to the retention and
+          privacy-request provisions below. Published reviews and replies remain until removed in
+          response to an appropriate request or otherwise handled lawfully.
+        </p>
         <p>
           We use reasonable technical and organisational safeguards, including restricted access to
           client records and server-side payment and email credentials. No website or communication

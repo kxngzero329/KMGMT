@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react";
-import type { testimonialsQuery } from "@/features/public/queries";
+import { useEffect, useRef, useState } from "react";
+import type { Quote } from "@/features/public/reviews";
+import { ReviewDate, ReviewStars } from "@/components/reviews/ReviewDetails";
+import { ReviewReplyDialog } from "@/components/reviews/ReviewReplyDialog";
 
-type Testimonial = Awaited<ReturnType<NonNullable<typeof testimonialsQuery.queryFn>>>[number];
-
-export function TestimonialSlider({ quotes }: { quotes: Testimonial[] }) {
+export function TestimonialSlider({ quotes }: { quotes: Quote[] }) {
   const viewport = useRef<HTMLDivElement>(null);
   const group = useRef<HTMLDivElement>(null);
+  const [replyOpen, setReplyOpen] = useState(false);
   const looping = quotes.length > 1;
 
   useEffect(() => {
     const node = viewport.current;
     const firstGroup = group.current;
-    if (!node || !firstGroup || !looping) return;
+    if (!node || !firstGroup || !looping || replyOpen) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let lastTime = 0;
@@ -75,7 +76,7 @@ export function TestimonialSlider({ quotes }: { quotes: Testimonial[] }) {
       window.removeEventListener("pointercancel", release);
       node.removeEventListener("wheel", manualScroll);
     };
-  }, [looping, quotes.length]);
+  }, [looping, quotes.length, replyOpen]);
 
   const cards = (duplicate = false) => (
     <div
@@ -94,20 +95,32 @@ export function TestimonialSlider({ quotes }: { quotes: Testimonial[] }) {
           >
             “
           </span>
+          {(quote.rating !== undefined || quote.created_at) && (
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              {quote.rating !== undefined && <ReviewStars rating={quote.rating} />}
+              {quote.created_at && <ReviewDate value={quote.created_at} />}
+            </div>
+          )}
           <blockquote
-            className={`flex-1 font-display font-semibold leading-relaxed ${!looping ? "max-w-4xl text-2xl md:text-3xl" : "text-xl"}`}
+            className={`flex-1 whitespace-pre-wrap break-words font-display font-semibold leading-relaxed [overflow-wrap:anywhere] ${quote.rating !== undefined ? "line-clamp-6" : ""} ${!looping ? "max-w-4xl text-2xl md:text-3xl" : "text-xl"}`}
           >
             “{quote.content}”
           </blockquote>
           <figcaption className="mt-8 flex items-center gap-4">
             <span className="h-px w-8 bg-gold" aria-hidden />
-            <div>
+            <div className="min-w-0 break-words [overflow-wrap:anywhere]">
               <p className="text-sm font-bold">{quote.client_name}</p>
               {quote.role_or_context && (
                 <p className="mt-1 text-xs text-muted-foreground">{quote.role_or_context}</p>
               )}
             </div>
           </figcaption>
+          <ReviewReplyDialog
+            reply={quote.review_replies}
+            reviewerName={quote.client_name}
+            duplicate={duplicate}
+            onOpenChange={setReplyOpen}
+          />
         </figure>
       ))}
     </div>
@@ -126,6 +139,7 @@ export function TestimonialSlider({ quotes }: { quotes: Testimonial[] }) {
         aria-label="Client testimonials"
         tabIndex={looping ? 0 : undefined}
         onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
           if (!looping || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
           event.preventDefault();
           const node = event.currentTarget;

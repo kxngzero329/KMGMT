@@ -24,3 +24,13 @@ import_map = "./functions/deno.json"
 # Private invoice worker: requires EMAIL_WORKER_TOKEN, not a browser key.
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.submit-review]
+# Public submission: validates origin, project key, payload and atomic abuse limits.
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+[functions.process-review-emails]
+# Private review notification queue: requires EMAIL_WORKER_TOKEN, never a public key.
+verify_jwt = false
+import_map = "./functions/deno.json"

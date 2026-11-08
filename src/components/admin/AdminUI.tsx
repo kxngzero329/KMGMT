@@ -11,7 +11,7 @@ const PAGE_DESCRIPTIONS: Record<string, string> = {
   Payments: "Follow every payment, invoice and EFT verification in one place.",
   Services: "Shape your consultations, pricing and what clients can book.",
   "Represented players": "Manage the players and stories featured on your website.",
-  Testimonials: "Share the words that reflect your work. You control what goes live.",
+  Testimonials: "Respond to visitor reviews and manage your curated testimonials.",
   Enquiries: "New conversations and follow-ups, ready for your next move.",
 };
 

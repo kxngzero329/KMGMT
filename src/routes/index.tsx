@@ -32,13 +32,14 @@ import {
   RouteMap,
 } from "@/components/home/HomeDetails";
 import { playersQuery, servicesQuery, testimonialsQuery } from "@/features/public/queries";
-import { TestimonialSlider } from "@/components/home/TestimonialSlider";
+import { HomeReviews } from "@/components/reviews/HomeReviews";
+import { reviewsQuery } from "@/features/public/reviews";
 import { consultant, consultationPolicy } from "@/content/site";
 import hero from "@/assets/hero.png";
 
 export const Route = createFileRoute("/")({
   loader: async ({ context }) => {
-    const [services, players, testimonials] = await Promise.all([
+    const [services, players, testimonials, reviews] = await Promise.all([
       publicSeoData(
         () => context.queryClient.fetchQuery({ ...servicesQuery, retry: false }),
         () => context.queryClient.cancelQueries({ queryKey: servicesQuery.queryKey, exact: true }),
@@ -52,8 +53,13 @@ export const Route = createFileRoute("/")({
         () =>
           context.queryClient.cancelQueries({ queryKey: testimonialsQuery.queryKey, exact: true }),
       ),
+      publicSeoData(
+        () => context.queryClient.fetchQuery({ ...reviewsQuery(), retry: false }),
+        () =>
+          context.queryClient.cancelQueries({ queryKey: ["public", "reviews", 0], exact: true }),
+      ),
     ]);
-    return { services, players, testimonials };
+    return { services, players, testimonials, reviews };
   },
   head: () => pageSeo("/"),
   component: Home,
@@ -484,19 +490,7 @@ function Home() {
         </section>
       )}
 
-      {quotes.length > 0 && (
-        <section className="home-section border-y border-gold/20 bg-secondary">
-          <div className="container-page">
-            <Reveal>
-              <p className="eyebrow home-eyebrow">First-hand perspectives</p>
-              <h2 className="home-heading mt-4">
-                Trust, in <span className="gold-text">their words.</span>
-              </h2>
-              <TestimonialSlider quotes={quotes} />
-            </Reveal>
-          </div>
-        </section>
-      )}
+      <HomeReviews quotes={quotes} initialReviews={initial.reviews} />
 
       <section className="home-section bg-background">
         <div className="container-page grid gap-10 md:grid-cols-[1fr_1.6fr] md:gap-16">

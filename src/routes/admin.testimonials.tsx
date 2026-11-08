@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Testimonial } from "@/types/domain";
 import { DeleteRecordButton } from "@/components/admin/DeleteRecordButton";
+import { AdminReviews } from "@/components/admin/AdminReviews";
 
 export const Route = createFileRoute("/admin/testimonials")({ component: Testimonials });
 
@@ -68,6 +69,13 @@ function Testimonials() {
           <Plus className="mr-1 h-4 w-4" /> Add testimonial
         </Button>
       </AdminTitle>
+      <AdminReviews />
+      <div className="mb-5 border-t border-border pt-7">
+        <h2 className="text-lg font-semibold">Curated testimonials</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Existing testimonials managed by KMGMT. Visitor reviews above publish automatically.
+        </p>
+      </div>
       {q.isLoading && <Skeleton className="h-40" />}
       <ul className="space-y-3">
         {(q.data ?? []).map((t) => (

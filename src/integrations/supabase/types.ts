@@ -6,6 +6,24 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+type ReviewEmailJob = {
+  id: string
+  review_id: string
+  kind: string
+  snapshot: Json
+  request_payload: Json | null
+  status: string
+  attempts: number
+  first_attempt_at: string | null
+  next_attempt_at: string
+  locked_until: string | null
+  lock_token: string | null
+  resend_id: string | null
+  last_error_code: string | null
+  created_at: string
+  sent_at: string | null
+}
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -738,11 +756,55 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: { id: string; client_name: string; role_or_context: string | null; rating: number; content: string; created_at: string }
+        Insert: { id: string; client_name: string; role_or_context?: string | null; rating: number; content: string; created_at?: string }
+        Update: { id?: string; client_name?: string; role_or_context?: string | null; rating?: number; content?: string; created_at?: string }
+        Relationships: []
+      }
+      review_replies: {
+        Row: { review_id: string; content: string; created_at: string; updated_at: string }
+        Insert: { review_id: string; content: string; created_at?: string; updated_at?: string }
+        Update: { review_id?: string; content?: string; created_at?: string; updated_at?: string }
+        Relationships: [{ foreignKeyName: "review_replies_review_id_fkey"; columns: ["review_id"]; isOneToOne: true; referencedRelation: "reviews"; referencedColumns: ["id"] }]
+      }
+      review_contacts: {
+        Row: { review_id: string; email: string; created_at: string }
+        Insert: { review_id: string; email: string; created_at?: string }
+        Update: { review_id?: string; email?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "review_contacts_review_id_fkey"; columns: ["review_id"]; isOneToOne: true; referencedRelation: "reviews"; referencedColumns: ["id"] }]
+      }
+      review_email_outbox: {
+        Row: ReviewEmailJob
+        Insert: Pick<ReviewEmailJob, "review_id" | "kind" | "snapshot"> & Partial<Omit<ReviewEmailJob, "review_id" | "kind" | "snapshot">>
+        Update: Partial<ReviewEmailJob>
+        Relationships: [{ foreignKeyName: "review_email_outbox_review_id_fkey"; columns: ["review_id"]; isOneToOne: false; referencedRelation: "reviews"; referencedColumns: ["id"] }]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      submit_public_review_with_email: {
+        Args: { p_id: string; p_network_hash: string; p_fingerprint: string; p_client_name: string; p_role_or_context: string; p_rating: number; p_content: string; p_email: string; p_email_hash: string }
+        Returns: string
+      }
+      claim_review_email_jobs: {
+        Args: { p_limit?: number }
+        Returns: ReviewEmailJob[]
+      }
+      freeze_review_email_request: {
+        Args: { p_id: string; p_lock: string; p_payload: Json }
+        Returns: Json
+      }
+      finish_review_email_job: {
+        Args: { p_id: string; p_lock: string; p_resend_id?: string; p_error_code?: string; p_permanent?: boolean }
+        Returns: undefined
+      }
+      submit_public_review: {
+        Args: { p_id: string; p_network_hash: string; p_fingerprint: string; p_client_name: string; p_role_or_context: string; p_rating: number; p_content: string }
+        Returns: string
+      }
       admin_delete_record: {
         Args: { p_entity: string; p_id: string }
         Returns: undefined
