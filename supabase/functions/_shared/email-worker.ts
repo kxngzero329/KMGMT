@@ -18,6 +18,7 @@ const messageSchema = z.object({
   subject: z.string(),
   html: z.string(),
   text: z.string(),
+  reply_to: z.string().email().optional(),
 });
 const jobSchema = z.object({
   id: z.string().uuid(),
@@ -55,8 +56,12 @@ export async function processBookingEmails(deps: PaymentDependencies) {
         p_payload: proposed,
       });
       if (frozen.error) throw new DeliveryError("email_payload_storage_failed");
-      const message = messageSchema.parse(frozen.data);
-      const id = await sendResendEmail(message, config, `kmgmt-booking-email/${job.id}`);
+      const { reply_to, ...message } = messageSchema.parse(frozen.data);
+      const id = await sendResendEmail(
+        reply_to ? { ...message, reply_to } : message,
+        config,
+        `kmgmt-booking-email/${job.id}`,
+      );
       const saved = await deps.supabase.rpc("finish_booking_email_job", {
         p_id: job.id,
         p_lock: job.lock_token,

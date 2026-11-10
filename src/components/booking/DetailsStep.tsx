@@ -294,6 +294,7 @@ export function DetailsStep({
             />
             <Field
               label="Highlight video link"
+              hint="You may share your footage link now. Otherwise, send footage after booking by WhatsApp, email or a reply to your confirmation email. Footage is required before your consultation."
               type="url"
               value={value.highlight_video_url}
               onChange={set("highlight_video_url")}

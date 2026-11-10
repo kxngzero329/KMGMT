@@ -173,6 +173,29 @@ to preserve Resend idempotency. Future unattempted jobs use the new secret.
 
 ## Operations
 
+### Performance footage after booking
+
+Client PayFast confirmations and EFT confirmation/invoice emails explain that performance
+footage is required after booking, before the consultation, so Kieraan can personally review
+it. Each includes separate **Send footage via WhatsApp** and **Send footage via email**
+buttons with the booking reference, plus instructions to attach videos or a working viewing
+link. The EFT PDF invoice repeats this preparation requirement. Proof-of-payment instructions
+remain separate.
+
+Clients can also reply directly to their confirmation email: PayFast customer messages set
+`reply_to` to the public business email in `src/content/site.ts`, and the worker preserves that
+field when sending through Resend. EFT customer messages retain their existing `EFT_PROOF_EMAIL`
+reply address. Footage links/text share `performanceFootagePolicy` in `src/content/site.ts`
+and `src/lib/performance-footage.ts`; HTML rendering lives in `_shared/footage-email.ts`.
+
+Deploy **process-booking-emails** and **process-eft-emails** for the new email content.
+No database migration, new secrets, upload endpoint or booking/payment status change is
+required. Admin notification content is unchanged. Already-sent messages and frozen retry
+payloads are not rewritten or resent. Clients send their footage directly to Kieraan through
+the chosen channel; the website does not automatically attach, upload or mark footage received.
+
+### Delivery records
+
 Use the Supabase SQL editor or a privileged database connection to inspect
 `booking_email_outbox`: `status`, `attempts`, `last_error_code`, `resend_id`, and
 `sent_at` show delivery progress. The table and all delivery RPCs are inaccessible

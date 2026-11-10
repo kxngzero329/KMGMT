@@ -21,7 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingAssurances, PitchLines, Reveal } from "@/components/home/HomeDetails";
 import { ConsultationOffering } from "@/components/services/ConsultationOffering";
-import { serviceGuidance } from "@/content/site";
+import { serviceGuidance, contactDetails, performanceFootagePolicy } from "@/content/site";
+import { PerformanceFootageNotice } from "@/components/booking/PerformanceFootageNotice";
 import { servicesQuery } from "@/features/public/queries";
 
 export const Route = createFileRoute("/services")({
@@ -39,7 +40,7 @@ const EXPECTATIONS = [
   {
     icon: MessageSquare,
     title: "Your situation, understood",
-    text: "Share your playing background, goals and questions when you book, so the conversation starts with you.",
+    text: "Share your playing background, goals and questions when you book, then send performance footage for Kieraan to personally review before your consultation.",
   },
   {
     icon: ShieldCheck,
@@ -67,7 +68,7 @@ const FAQS = [
   },
   {
     q: "What should I prepare?",
-    a: "Think about your current situation, the questions you want to ask and what you're hoping to understand. The booking form lets you share your playing history and, if you have one, a link to your highlight video.",
+    a: `Think about your current situation and the questions you want to ask. ${performanceFootagePolicy.notice} ${performanceFootagePolicy.channels} ${performanceFootagePolicy.instructions} WhatsApp: ${contactDetails.whatsapp}. Email: ${contactDetails.email}. You can also share a footage link in the booking form.`,
   },
   {
     q: "How do booking and payment work?",
@@ -177,6 +178,7 @@ function ServicesPage() {
         aria-labelledby="consultations-title"
       >
         <div className="container-page">
+          <PerformanceFootageNotice compact className="mb-10" />
           <Reveal>
             <p className="eyebrow home-eyebrow">Choose your conversation</p>
             <div className="mt-4 grid gap-5 md:grid-cols-[1.4fr_1fr] md:items-end md:gap-16">

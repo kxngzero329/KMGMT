@@ -1,5 +1,7 @@
 import { z } from "zod";
 import type { Env } from "./types.ts";
+import { contactDetails } from "../../../src/content/site.ts";
+import { buildFootageEmailSection } from "./footage-email.ts";
 
 export const emailKind = z.enum([
   "customer_confirmation",
@@ -197,15 +199,18 @@ export function buildBookingEmail(
     "For cancellation or rescheduling, please give at least 24 hours' notice. Refunds are handled manually; approved refunds take 3–5 working days. Statutory consumer rights still apply.";
   const supportHtml = `<p style="margin-top:24px;color:#625d53">${escapeHtml(changes)} <a href="${escapeHtml(config.siteUrl)}/terms" style="color:#625d53">Booking policies</a>.</p><p style="margin-top:16px;color:#625d53">${whatsappUrl ? `<a href="${escapeHtml(whatsappUrl)}" style="color:#625d53">Contact KMGMT on WhatsApp: ${escapeHtml(config.whatsapp || "")}</a><br>` : ""}For assistance, visit <a href="${escapeHtml(config.siteUrl)}/contact" style="color:#625d53">KMGMT contact</a>.</p>`;
   const linkLabel = admin ? "Open admin bookings" : "View your booking";
+  const footage = admin ? null : buildFootageEmailSection(booking.reference);
   return {
     from: config.from,
     to: [test || admin ? config.admin : client.email],
+    ...(!admin ? { reply_to: contactDetails.email } : {}),
     subject: `${test ? "[TEST] " : ""}${title} | ${booking.reference} | KMGMT`,
-    html: `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f5f3ee;color:#242424;font-family:Arial,sans-serif;font-size:14px;line-height:1.6"><table role="presentation" style="width:100%;padding:24px 12px"><tr><td><table role="presentation" style="width:100%;max-width:640px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:24px 32px"><h1 style="font-size:24px;margin:0 0 16px">${escapeHtml(title)}</h1>${notice ? `<p style="font-weight:bold">${notice}</p>` : ""}<p>${escapeHtml(intro)}</p>${section("Booking details", details)}${section("Payment receipt", paid)}${extra.length ? section("Client details", extra) : ""}${test ? "" : `<p style="margin-top:28px"><a href="${escapeHtml(target)}" style="color:#242424;font-weight:bold">${linkLabel}</a></p>`}${supportHtml}</td></tr></table></td></tr></table></body></html>`,
+    html: `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f5f3ee;color:#242424;font-family:Arial,sans-serif;font-size:14px;line-height:1.6"><table role="presentation" style="width:100%;padding:24px 12px"><tr><td><table role="presentation" style="width:100%;max-width:640px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:24px 32px"><h1 style="font-size:24px;margin:0 0 16px">${escapeHtml(title)}</h1>${notice ? `<p style="font-weight:bold">${notice}</p>` : ""}<p>${escapeHtml(intro)}</p>${footage?.html || ""}${section("Booking details", details)}${section("Payment receipt", paid)}${extra.length ? section("Client details", extra) : ""}${test ? "" : `<p style="margin-top:28px"><a href="${escapeHtml(target)}" style="color:#242424;font-weight:bold">${linkLabel}</a></p>`}${supportHtml}</td></tr></table></td></tr></table></body></html>`,
     text: [
       title,
       notice,
       intro,
+      ...(footage ? ["", footage.text] : []),
       "",
       "Booking details",
       ...details.map(([key, value]) => `${key}: ${value}`),

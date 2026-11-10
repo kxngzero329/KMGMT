@@ -8,6 +8,7 @@ import { createBookingHold } from "@/features/bookings/bookings.functions";
 import { createPayfastPayment } from "@/features/payments/client";
 import { createEftBooking } from "@/features/payments/eft-client";
 import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
+import { performanceFootagePolicy } from "@/content/site";
 import {
   paymentMethodLabel,
   PAYFAST_AVAILABLE,
@@ -219,9 +220,9 @@ export function ReviewStep({
         >
           Privacy Policy
         </Link>
-        . Please give at least 24 hours&apos; notice for cancellation or rescheduling. Refunds are
-        reviewed and processed manually; approved refunds take 3–5 working days. Your statutory
-        consumer rights still apply.
+        . {performanceFootagePolicy.notice} Please give at least 24 hours&apos; notice for
+        cancellation or rescheduling. Refunds are reviewed and processed manually; approved refunds
+        take 3–5 working days. Your statutory consumer rights still apply.
       </p>
       {error && (
         <p

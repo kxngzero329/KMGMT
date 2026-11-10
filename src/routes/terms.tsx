@@ -2,6 +2,7 @@ import { pageSeo } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PolicyContact } from "@/components/common/PolicyContact";
+import { contactDetails, performanceFootagePolicy } from "@/content/site";
 import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 
 export const Route = createFileRoute("/terms")({
@@ -14,7 +15,7 @@ function Terms() {
     <>
       <PageHeader eyebrow="Legal" title="Terms & Conditions" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 7 November 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 10 November 2026</p>
         <p>
           These terms apply to kmgmt.co.za and to football consultations, career guidance and player
           advisory services booked through KMGMT. They include our refund, cancellation,
@@ -106,6 +107,28 @@ function Terms() {
           Consultations take place at the date and time selected during booking. Times on this
           website are shown in South African Standard Time (SAST, Africa/Johannesburg). KMGMT uses
           your submitted football background and questions to prepare for the session.
+        </p>
+        <h3 id="performance-footage" className="scroll-mt-24">
+          Performance footage required after booking
+        </h3>
+        <p>
+          <strong>{performanceFootagePolicy.notice}</strong>
+        </p>
+        <p>
+          {performanceFootagePolicy.channels} {performanceFootagePolicy.instructions}
+        </p>
+        <p>
+          Send footage to Kieraan on WhatsApp at{" "}
+          <a
+            href={`https://wa.me/${contactDetails.whatsapp.replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {contactDetails.whatsapp}
+          </a>{" "}
+          or email <a href={`mailto:${contactDetails.email}`}>{contactDetails.email}</a>. The
+          booking form also accepts a video link; uploading a video file on this website is not
+          required.
         </p>
         <p>
           <strong>Consultations are online only</strong> unless Kieraan personally confirms an
@@ -211,6 +234,12 @@ function Terms() {
           questions. Submit only CVs, photographs, footage and links that you own or have permission
           to share. Do not knowingly provide misleading career information or another person&apos;s
           confidential information without authority.
+        </p>
+        <p>
+          Performance footage is required for Kieraan&apos;s personal review before your
+          consultation. Provide videos or a working viewing link after booking, and ensure he can
+          open any link you share. For a player under 18, a parent or guardian must have authority
+          to share the footage.
         </p>
         <p>
           Use advice responsibly and make your own informed decisions about clubs, agents,

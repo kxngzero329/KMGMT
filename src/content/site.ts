@@ -30,6 +30,16 @@ export const consultationPolicy = {
     "Consultations are online only. An alternative arrangement is available only if Kieraan personally confirms it with you through WhatsApp. You must still book through this website and pay using your selected payment method.",
 };
 
+export const performanceFootagePolicy = {
+  title: "Performance footage required after booking",
+  notice:
+    "After making your booking, you must send video footage of the player's performance so Kieraan can personally review it before the consultation.",
+  channels:
+    "Send your videos or a working viewing link by WhatsApp or email. You can also reply directly to your booking confirmation email and attach your footage or include the viewing link.",
+  instructions:
+    "Include the player's name and your booking reference. If a video is too large to attach, send a working viewing link that Kieraan can open.",
+};
+
 /** Preview text is displayed without links until the approved contact details are filled in. */
 export const contactPage = {
   placeholders: {
@@ -142,7 +152,8 @@ export const internationalPathways = {
       title: "Footage that shows your game",
       label: "Your highlight profile",
       text: "Explore how to structure a short, clear highlight video and choose footage that gives an honest picture of your game. The focus is on helping someone understand you as a player.",
-      takeaway: "You can share a highlight video link in the booking form.",
+      takeaway:
+        "Performance footage is required after booking. Share a link in the form or send your videos or a working viewing link by WhatsApp, email or a reply to your booking confirmation.",
     },
     {
       title: "Preparation for a possible trial",

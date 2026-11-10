@@ -11,6 +11,7 @@ import { contactDetails } from "@/content/site";
 import { proofOfPaymentLinks } from "@/lib/payment-methods";
 import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "@/lib/eft-policy";
 import { useEftDeadlinePassed } from "@/hooks/use-eft-deadline";
+import { PerformanceFootageNotice } from "@/components/booking/PerformanceFootageNotice";
 
 export const Route = createFileRoute("/booking/success")({
   validateSearch: z.object({ booking: z.string().uuid().optional() }),
@@ -169,6 +170,9 @@ function Success() {
             </p>
           </div>
         )}
+        {active && b.status === "confirmed" && (
+          <PerformanceFootageNotice bookingReference={b.booking_reference} className="mt-6" />
+        )}
         <p className="mt-6 text-sm leading-7 text-muted-foreground">
           {consultationDelivery(b.consultation_format)}
         </p>
@@ -236,6 +240,7 @@ function Success() {
           </div>
         ))}
       </dl>
+      <PerformanceFootageNotice bookingReference={b.booking_reference} className="mt-6" />
       <p className="mt-6 text-sm leading-7 text-muted-foreground">
         {consultationDelivery(b.consultation_format)}
       </p>

@@ -13,7 +13,7 @@ function Privacy() {
     <>
       <PageHeader eyebrow="Legal" title="Privacy Policy" />
       <article className="container-page prose-legal max-w-3xl py-14">
-        <p className="text-sm text-muted-foreground">Last updated: 8 November 2026</p>
+        <p className="text-sm text-muted-foreground">Last updated: 10 November 2026</p>
         <h2>1. Who this policy covers</h2>
         <p>
           KMGMT provides football consultations, career guidance and player advisory services
@@ -46,8 +46,10 @@ function Privacy() {
           <li>
             <strong>Player materials:</strong> social profile and highlight-video links submitted in
             the booking form, and player CVs, football footage or supporting materials you send
-            separately for an agreed service. The booking form collects links; it does not require a
-            CV upload.
+            separately for an agreed service. After booking, you must provide performance footage
+            for Kieraan to personally review before your consultation. Send the videos or a working
+            viewing link by WhatsApp, email or a reply to your booking confirmation email. The
+            booking form accepts a video link; it does not require video-file or CV uploads.
           </li>
           <li>
             <strong>Booking records:</strong> online consultation details, any directly agreed

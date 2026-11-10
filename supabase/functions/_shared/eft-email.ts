@@ -5,6 +5,8 @@ import { getEmailConfig, snapshotSchema, type EmailConfig } from "./booking-emai
 import type { Env } from "./types.ts";
 import type { ResendEnvelope } from "./resend.ts";
 import { EFT_PAYMENT_POLICY, EFT_PROOF_POLICY } from "../../../src/lib/eft-policy.ts";
+import { performanceFootagePolicy } from "../../../src/content/site.ts";
+import { buildFootageEmailSection } from "./footage-email.ts";
 
 export const eftSnapshotSchema = z.object({
   booking: snapshotSchema.shape.booking.extend({
@@ -198,6 +200,14 @@ async function invoicePdf(snapshot: EftSnapshot, config: EftConfig) {
     "Your appointment is reserved, but payment remains pending until Kieraan verifies receipt of funds. Sending proof does not automatically mark this invoice paid.",
   );
   gap();
+  write("PERFORMANCE FOOTAGE REQUIRED AFTER BOOKING", true);
+  write(performanceFootagePolicy.notice);
+  write(performanceFootagePolicy.channels);
+  write(performanceFootagePolicy.instructions);
+  write(
+    `Send footage to WhatsApp ${config.whatsapp} or ${config.proofEmail}, or reply directly to your booking confirmation email.`,
+  );
+  gap();
   write(
     "Online consultations only, unless Kieraan personally confirms an exception through WhatsApp. Website booking and payment are still required.",
   );
@@ -363,12 +373,16 @@ export async function buildEftEmail(
     "Kieraan will arrange your online video call through your booking WhatsApp number. Any joining link is shared before the appointment. Consultations are online unless Kieraan personally confirms an alternative through WhatsApp. Your website booking and payment are still required.";
   const policies =
     "Give at least 24 hours' notice to cancel or reschedule. Refunds are handled manually; approved refunds take 3–5 working days. Statutory consumer rights still apply.";
+  const footage = buildFootageEmailSection(booking.reference, {
+    email: config.proofEmail,
+    whatsapp: config.whatsapp,
+  });
   return {
     from: config.email.from,
     to: [admin ? config.email.admin : client.email],
     reply_to: admin ? client.email : config.proofEmail,
     subject: `${title} | ${booking.reference} | KMGMT`,
-    html: `<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body style="margin:0;background:#f5f3ee;color:#242424;font:14px/1.6 Arial,sans-serif"><table role="presentation" style="width:100%;padding:24px 12px"><tr><td><table role="presentation" style="width:100%;max-width:660px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:28px 32px"><h1 style="font-size:24px;margin:0 0 16px">${escape(title)}</h1><p>${escape(intro)}</p><p style="padding:14px;background:#f5f3ee;border-left:2px solid #b49b66;font-weight:bold">EFT payment pending · ${escape(fmt.amount)} ZAR due<br>Use reference: ${escape(booking.reference)}</p><h2 style="font-size:16px;margin-top:28px">Booking &amp; invoice details</h2>${table(rows)}<h2 style="font-size:16px;margin-top:28px">Bank details for EFT</h2>${table(bankRows)}<h2 style="font-size:16px;margin-top:28px">Send proof of payment</h2><p>${escape(proof)}</p><p><a href="${escape(whatsappUrl)}" style="display:inline-block;margin:6px 8px 6px 0;padding:12px 16px;background:#242424;color:#fffdf8;text-decoration:none;font-weight:bold;border-radius:4px">Send proof via WhatsApp</a><a href="${escape(mailUrl)}" style="display:inline-block;margin:6px 0;padding:12px 16px;background:#b49b66;color:#242424;text-decoration:none;font-weight:bold;border-radius:4px">Send proof via email</a></p><p style="font-size:12px;color:#625d53">WhatsApp: ${escape(config.whatsapp)}<br>Email: ${escape(config.proofEmail)}</p>${clientRows.length ? `<h2 style="font-size:16px;margin-top:28px">Client details</h2>${table(clientRows)}` : ""}<p style="margin-top:24px">${escape(delivery)}</p><p><a href="${escape(action)}" style="color:#242424;font-weight:bold">${admin ? "Open admin bookings" : "View your booking"}</a></p><p style="color:#625d53;font-size:12px">${escape(policies)} <a href="${escape(config.email.siteUrl)}/terms" style="color:#625d53">Booking policies</a></p></td></tr></table></td></tr></table></body></html>`,
+    html: `<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body style="margin:0;background:#f5f3ee;color:#242424;font:14px/1.6 Arial,sans-serif"><table role="presentation" style="width:100%;padding:24px 12px"><tr><td><table role="presentation" style="width:100%;max-width:660px;margin:auto;background:#fffdf8"><tr><td style="padding:28px 32px;background:#242424;color:#fffdf8;border-bottom:2px solid #b49b66;font-size:26px;font-weight:bold;letter-spacing:3px">KMGMT</td></tr><tr><td style="padding:28px 32px"><h1 style="font-size:24px;margin:0 0 16px">${escape(title)}</h1><p>${escape(intro)}</p><p style="padding:14px;background:#f5f3ee;border-left:2px solid #b49b66;font-weight:bold">EFT payment pending · ${escape(fmt.amount)} ZAR due<br>Use reference: ${escape(booking.reference)}</p><h2 style="font-size:16px;margin-top:28px">Booking &amp; invoice details</h2>${table(rows)}<h2 style="font-size:16px;margin-top:28px">Bank details for EFT</h2>${table(bankRows)}<h2 style="font-size:16px;margin-top:28px">Send proof of payment</h2><p>${escape(proof)}</p><p><a href="${escape(whatsappUrl)}" style="display:inline-block;margin:6px 8px 6px 0;padding:12px 16px;background:#242424;color:#fffdf8;text-decoration:none;font-weight:bold;border-radius:4px">Send proof via WhatsApp</a><a href="${escape(mailUrl)}" style="display:inline-block;margin:6px 0;padding:12px 16px;background:#b49b66;color:#242424;text-decoration:none;font-weight:bold;border-radius:4px">Send proof via email</a></p><p style="font-size:12px;color:#625d53">WhatsApp: ${escape(config.whatsapp)}<br>Email: ${escape(config.proofEmail)}</p>${footage.html}${clientRows.length ? `<h2 style="font-size:16px;margin-top:28px">Client details</h2>${table(clientRows)}` : ""}<p style="margin-top:24px">${escape(delivery)}</p><p><a href="${escape(action)}" style="color:#242424;font-weight:bold">${admin ? "Open admin bookings" : "View your booking"}</a></p><p style="color:#625d53;font-size:12px">${escape(policies)} <a href="${escape(config.email.siteUrl)}/terms" style="color:#625d53">Booking policies</a></p></td></tr></table></td></tr></table></body></html>`,
     text: [
       title,
       intro,
@@ -382,6 +396,8 @@ export async function buildEftEmail(
       `Send proof via WhatsApp: ${whatsappUrl}`,
       `Send proof via email: ${config.proofEmail}`,
       mailUrl,
+      "",
+      footage.text,
       "",
       ...clientRows.map(([key, value]) => `${key}: ${value}`),
       delivery,

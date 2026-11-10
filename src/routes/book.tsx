@@ -10,6 +10,7 @@ import { emptyDetails, type DetailsDraft } from "@/components/booking/details-dr
 import { ServiceStep } from "@/components/booking/ServiceStep";
 import { DateStep, TimeStep } from "@/components/booking/DateTimeSteps";
 import { ReviewStep } from "@/components/booking/ReviewStep";
+import { PerformanceFootageNotice } from "@/components/booking/PerformanceFootageNotice";
 import { PaymentMethodStep } from "@/components/booking/PaymentMethodStep";
 import type { PaymentMethod } from "@/lib/payment-methods";
 import { BookingSummary, MobileBookingSummary } from "@/components/booking/BookingSummary";
@@ -97,6 +98,7 @@ function BookPage() {
       </section>
       <section className="bg-secondary py-9 md:py-12" aria-label="Build your consultation booking">
         <div ref={workspaceRef} id="booking-workspace" className="container-page scroll-mt-20">
+          <PerformanceFootageNotice compact className="mb-7" />
           <Stepper current={step} {...(!busy ? { onEdit: go } : {})} />
           <MobileBookingSummary
             service={service}

@@ -34,7 +34,12 @@ import {
 import { playersQuery, servicesQuery, testimonialsQuery } from "@/features/public/queries";
 import { HomeReviews } from "@/components/reviews/HomeReviews";
 import { reviewsQuery } from "@/features/public/reviews";
-import { consultant, consultationPolicy } from "@/content/site";
+import {
+  consultant,
+  consultationPolicy,
+  contactDetails,
+  performanceFootagePolicy,
+} from "@/content/site";
 import hero from "@/assets/hero.png";
 
 export const Route = createFileRoute("/")({
@@ -127,6 +132,10 @@ const FAQS = [
   {
     q: "Are consultations online?",
     a: consultationPolicy.notice,
+  },
+  {
+    q: "Do I need to send performance footage after booking?",
+    a: `${performanceFootagePolicy.notice} ${performanceFootagePolicy.channels} ${performanceFootagePolicy.instructions} WhatsApp: ${contactDetails.whatsapp}. Email: ${contactDetails.email}.`,
   },
   {
     q: "Can a parent book for their child?",
